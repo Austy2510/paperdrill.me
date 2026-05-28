@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   Search, 
@@ -30,8 +30,15 @@ const recentPapers = [
   { board: "Edexcel", level: "GCSE", year: 2023, subject: "Maths", session: "June", paper: "H1" },
 ];
 
+const BOARDS = ["All Boards", "CAIE", "Pearson Edexcel", "AQA", "IB", "Dhaka Board"];
+
 export default function Dashboard() {
   const { user } = useUser();
+  const [selectedBoard, setSelectedBoard] = useState("All Boards");
+
+  const filteredPapers = selectedBoard === "All Boards" 
+    ? recentPapers 
+    : recentPapers.filter(p => p.board === selectedBoard);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex font-sans overflow-hidden">
@@ -127,8 +134,12 @@ export default function Dashboard() {
 
             <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest mr-2">Filter by Board:</span>
-              {["All Boards", "CAIE", "Pearson Edexcel", "AQA", "IB", "Dhaka Board"].map((board) => (
-                <button key={board} className={`px-4 py-2 rounded-full transition-all text-xs font-bold border ${board === "All Boards" ? "bg-primary text-primary-foreground border-primary" : "bg-secondary hover:bg-primary/10 hover:text-primary border-transparent hover:border-primary/20"}`}>
+              {BOARDS.map((board) => (
+                <button 
+                  key={board} 
+                  onClick={() => setSelectedBoard(board)}
+                  className={`px-4 py-2 rounded-full transition-all text-xs font-bold border ${board === selectedBoard ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" : "bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary border-transparent hover:border-primary/20"}`}
+                >
                   {board}
                 </button>
               ))}
@@ -183,7 +194,7 @@ export default function Dashboard() {
                 <button className="text-xs font-bold text-primary hover:underline">View All</button>
               </div>
               <div className="flex flex-col gap-3">
-                {recentPapers.map((p, i) => (
+                {filteredPapers.map((p, i) => (
                   <motion.div 
                     key={i} 
                     whileHover={{ x: 5 }}
