@@ -12,7 +12,7 @@
     "@ai-sdk/google": "^3.0.65",
     "@base-ui/react": "^1.4.1",
     "@clerk/nextjs": "^7.2.7",
-    "@workspace/db": "file:../../lib/db",
+    "@workspace/db": "workspace:*",
     "ai": "^6.0.169",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
