@@ -1,0 +1,10 @@
+.git
+scraper
+scripts
+data
+node_modules
+**/node_modules
+.venv
+**/.venv
+artifacts/mockup-sandbox
+.local

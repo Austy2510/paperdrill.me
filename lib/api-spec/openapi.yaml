@@ -1,0 +1,664 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: PaperDrill API — search board exam past papers and get AI-powered explanations.
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: search
+    description: Question and paper search
+  - name: questions
+    description: Question retrieval
+  - name: papers
+    description: Past paper retrieval
+  - name: catalog
+    description: Boards, subjects, levels, topics
+  - name: ai
+    description: AI explanations and tutoring
+  - name: stats
+    description: Aggregate stats and featured content
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /search:
+    get:
+      operationId: searchQuestions
+      tags: [search]
+      summary: Search questions
+      description: Hybrid full-text + tag search across indexed exam questions.
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Free text query (question fragment, keywords, topic)
+        - in: query
+          name: board
+          schema: { type: string }
+          description: Board code filter (e.g. CAIE, BISE_DHK, FBISE)
+        - in: query
+          name: subject
+          schema: { type: string }
+          description: Subject slug filter (e.g. chemistry, physics)
+        - in: query
+          name: level
+          schema: { type: string }
+          description: Level filter (e.g. O_LEVEL, A_LEVEL, IGCSE, SSC, HSC)
+        - in: query
+          name: year
+          schema: { type: integer }
+          description: Year filter
+        - in: query
+          name: paperType
+          schema: { type: string }
+          description: Paper type filter (MCQ, THEORY, PRACTICAL)
+        - in: query
+          name: topic
+          schema: { type: string }
+          description: Topic slug filter
+        - in: query
+          name: limit
+          schema: { type: integer, default: 24, maximum: 100 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResults"
+
+  /questions/{id}:
+    get:
+      operationId: getQuestion
+      tags: [questions]
+      summary: Get a single question with its mark scheme and metadata
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Question detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /questions/{id}/related:
+    get:
+      operationId: getRelatedQuestions
+      tags: [questions]
+      summary: Find more questions on the same topic / similar concept (returns up to 6)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Related questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuestionSummary"
+
+  /papers:
+    get:
+      operationId: listPapers
+      tags: [papers]
+      summary: Browse past papers with filters
+      parameters:
+        - in: query
+          name: board
+          schema: { type: string }
+        - in: query
+          name: subject
+          schema: { type: string }
+        - in: query
+          name: level
+          schema: { type: string }
+        - in: query
+          name: year
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 24, maximum: 100 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: Paper list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaperList"
+
+  /papers/{id}:
+    get:
+      operationId: getPaper
+      tags: [papers]
+      summary: Get a single paper with all its questions
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Paper detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaperDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /boards:
+    get:
+      operationId: listBoards
+      tags: [catalog]
+      summary: List all supported exam boards with question counts
+      responses:
+        "200":
+          description: Boards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Board"
+
+  /subjects:
+    get:
+      operationId: listSubjects
+      tags: [catalog]
+      summary: List subjects (optionally filtered by board) with question counts
+      parameters:
+        - in: query
+          name: board
+          schema: { type: string }
+      responses:
+        "200":
+          description: Subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subject"
+
+  /topics:
+    get:
+      operationId: listTopics
+      tags: [catalog]
+      summary: List topic tags (optionally filtered by subject) with question counts
+      parameters:
+        - in: query
+          name: subject
+          schema: { type: string }
+      responses:
+        "200":
+          description: Topics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Topic"
+
+  /years:
+    get:
+      operationId: listYears
+      tags: [catalog]
+      summary: List years with available papers (optionally filtered by board)
+      parameters:
+        - in: query
+          name: board
+          schema: { type: string }
+      responses:
+        "200":
+          description: Years with counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/YearBucket"
+
+  /stats/overview:
+    get:
+      operationId: getStatsOverview
+      tags: [stats]
+      summary: Aggregate library stats for the homepage
+      responses:
+        "200":
+          description: Overview stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsOverview"
+
+  /stats/featured:
+    get:
+      operationId: getFeaturedQuestions
+      tags: [stats]
+      summary: A handpicked rotating set of standout questions for the homepage
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 6, maximum: 20 }
+      responses:
+        "200":
+          description: Featured questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuestionSummary"
+
+  /stats/trending-topics:
+    get:
+      operationId: getTrendingTopics
+      tags: [stats]
+      summary: Most-searched topics this week
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 8, maximum: 20 }
+      responses:
+        "200":
+          description: Trending topics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrendingTopic"
+
+  /stats/recent-papers:
+    get:
+      operationId: getRecentPapers
+      tags: [stats]
+      summary: Recently indexed papers
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 8, maximum: 20 }
+      responses:
+        "200":
+          description: Recent papers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaperSummary"
+
+  /ai/explain:
+    post:
+      operationId: explainQuestion
+      tags: [ai]
+      summary: Generate an AI explanation for a question
+      description: Returns a Markdown explanation tailored to the question, mark scheme, subject and level.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExplainRequest"
+      responses:
+        "200":
+          description: AI explanation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExplainResponse"
+        "429":
+          description: Rate limited
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /ai/chat:
+    post:
+      operationId: chatWithTutor
+      tags: [ai]
+      summary: Conversational follow-up with the AI tutor
+      description: Accepts a multi-turn message history grounded in a specific question.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: AI assistant message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "429":
+          description: Rate limited
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+
+    Board:
+      type: object
+      required: [code, name, region, questionCount, paperCount, levels]
+      properties:
+        code: { type: string, description: "e.g. CAIE, FBISE" }
+        name: { type: string, description: "Human-readable board name" }
+        region: { type: string, description: "Country / region label" }
+        description: { type: string }
+        questionCount: { type: integer }
+        paperCount: { type: integer }
+        levels:
+          type: array
+          items: { type: string }
+
+    Subject:
+      type: object
+      required: [slug, name, questionCount]
+      properties:
+        slug: { type: string }
+        name: { type: string }
+        board: { type: string, description: "Optional board scope" }
+        questionCount: { type: integer }
+        paperCount: { type: integer }
+
+    Topic:
+      type: object
+      required: [slug, name, subject, questionCount]
+      properties:
+        slug: { type: string }
+        name: { type: string }
+        subject: { type: string }
+        questionCount: { type: integer }
+
+    YearBucket:
+      type: object
+      required: [year, paperCount]
+      properties:
+        year: { type: integer }
+        paperCount: { type: integer }
+
+    QuestionSummary:
+      type: object
+      required:
+        [
+          id,
+          questionNumber,
+          questionText,
+          board,
+          subject,
+          level,
+          year,
+          paperNumber,
+        ]
+      properties:
+        id: { type: string }
+        questionNumber: { type: string }
+        questionText: { type: string }
+        snippet: { type: string }
+        board: { type: string }
+        boardName: { type: string }
+        subject: { type: string }
+        subjectName: { type: string }
+        level: { type: string }
+        year: { type: integer }
+        paperNumber: { type: string }
+        paperType: { type: string }
+        topic: { type: string }
+        topicName: { type: string }
+        marks: { type: integer }
+        difficulty:
+          type: string
+          enum: [EASY, MEDIUM, HARD]
+
+    QuestionDetail:
+      type: object
+      required:
+        [
+          id,
+          questionNumber,
+          questionText,
+          answerText,
+          board,
+          subject,
+          level,
+          year,
+          paperNumber,
+        ]
+      properties:
+        id: { type: string }
+        questionNumber: { type: string }
+        questionText: { type: string }
+        answerText: { type: string }
+        board: { type: string }
+        boardName: { type: string }
+        subject: { type: string }
+        subjectName: { type: string }
+        level: { type: string }
+        year: { type: integer }
+        paperNumber: { type: string }
+        paperType: { type: string }
+        topic: { type: string }
+        topicName: { type: string }
+        marks: { type: integer }
+        difficulty:
+          type: string
+          enum: [EASY, MEDIUM, HARD]
+        sourcePdfUrl: { type: string }
+        markSchemeUrl: { type: string }
+        paperId: { type: string }
+
+    SearchResults:
+      type: object
+      required: [total, results, facets]
+      properties:
+        total: { type: integer }
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionSummary"
+        facets:
+          $ref: "#/components/schemas/SearchFacets"
+
+    SearchFacets:
+      type: object
+      required: [boards, subjects, years, levels, topics]
+      properties:
+        boards:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        years:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        levels:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+        topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facet"
+
+    Facet:
+      type: object
+      required: [value, label, count]
+      properties:
+        value: { type: string }
+        label: { type: string }
+        count: { type: integer }
+
+    PaperSummary:
+      type: object
+      required: [id, board, subject, level, year, paperNumber, questionCount]
+      properties:
+        id: { type: string }
+        board: { type: string }
+        boardName: { type: string }
+        subject: { type: string }
+        subjectName: { type: string }
+        level: { type: string }
+        year: { type: integer }
+        paperNumber: { type: string }
+        paperType: { type: string }
+        sourcePdfUrl: { type: string }
+        markSchemeUrl: { type: string }
+        questionCount: { type: integer }
+        durationMinutes: { type: integer }
+
+    PaperList:
+      type: object
+      required: [total, results]
+      properties:
+        total: { type: integer }
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaperSummary"
+
+    PaperDetail:
+      type: object
+      required: [paper, questions]
+      properties:
+        paper:
+          $ref: "#/components/schemas/PaperSummary"
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionSummary"
+
+    StatsOverview:
+      type: object
+      required: [totalQuestions, totalPapers, totalBoards, totalSubjects]
+      properties:
+        totalQuestions: { type: integer }
+        totalPapers: { type: integer }
+        totalBoards: { type: integer }
+        totalSubjects: { type: integer }
+        latestYear: { type: integer }
+        boards:
+          type: array
+          items:
+            $ref: "#/components/schemas/Board"
+
+    TrendingTopic:
+      type: object
+      required: [slug, name, subject, searchCount]
+      properties:
+        slug: { type: string }
+        name: { type: string }
+        subject: { type: string }
+        subjectName: { type: string }
+        searchCount: { type: integer }
+        questionCount: { type: integer }
+
+    ExplainRequest:
+      type: object
+      required: [questionId]
+      properties:
+        questionId: { type: string }
+        mode:
+          type: string
+          enum: [EXPLAIN, STEP_BY_STEP, HARDER, SIMPLER, TOPIC_OVERVIEW]
+          default: EXPLAIN
+
+    ExplainResponse:
+      type: object
+      required: [explanation]
+      properties:
+        explanation:
+          type: string
+          description: Markdown-formatted AI explanation
+        mode: { type: string }
+        questionId: { type: string }
+
+    ChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+        content: { type: string }
+
+    ChatRequest:
+      type: object
+      required: [questionId, messages]
+      properties:
+        questionId: { type: string }
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+
+    ChatResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          $ref: "#/components/schemas/ChatMessage"
