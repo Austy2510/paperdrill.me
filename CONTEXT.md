@@ -267,8 +267,10 @@ Available knobs:
 - `scraper/` directory with full Python pipeline (requests, BeautifulSoup4, pdfplumber, pytesseract, **Playwright**)
 - `database.py` — SQLite schema with Postgres-compatible types
 - `sync_to_postgres.py` — generates correct Postgres upsert SQL
-- `tagger.py` — tags quest### Key changes (live scraping fix session, frontend integration & roadmap completion)
-1. **CAIE (`caie.py`)**: Expanded sources dynamically to cover multiple subjects: `Chemistry`, `Physics`, `Biology`, and `Mathematics` across major CIE A-Level papers. Derived `mark_scheme_url` automatically.
+- `tagger.py` — tags questions inside Neon database.
+
+### Key changes (live scraping fix session, frontend integration & roadmap completion)
+1. **CAIE (`caie.py`)**: Expanded sources dynamically to cover multiple subjects (`Chemistry`, `Physics`, `Biology`, `Mathematics`) across four major CAIE levels: **AS & A Level**, **IGCSE**, **O Level**, and **Pre-U**. Bypasses PapaCambridge Cloudflare Turnstile blocks by natively crawling PMT directory listings and mapping level columns correctly. Derived `mark_scheme_url` automatically.
 2. **Edexcel (`edexcel.py`)**: Expanded sources dynamically to cover `Chemistry`, `Physics`, `Biology`, and `Mathematics` across major Edexcel A-Level papers. Derived `mark_scheme_url` automatically.
 3. **Mark Scheme Syncing (`base.py` & `segmenter.py`)**: Added native Mark Scheme PDF downloading, text extraction using `pdfplumber`, answer segmentation, and automatic pairing with question papers inside `ingest_paper` before database write.
 4. **Database Migration**: Switched the primary web dashboard database from local SQLite/Azure to a **Neon Serverless Postgres** instance.

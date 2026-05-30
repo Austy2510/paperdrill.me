@@ -8,32 +8,80 @@ from http_client import get_polite_session, polite_get
 class CAIEScraper(BaseScraper):
     def __init__(self, db_conn_str: str):
         super().__init__(db_conn_str, board="CAIE")
-        # PhysicsAndMathsTutor covers all A-Level subjects beautifully
+        # PhysicsAndMathsTutor covers all unblocked CAIE levels beautifully
         self.sources = [
+            # A Level & AS Level
             {
                 "url": "https://www.physicsandmathstutor.com/past-papers/a-level-chemistry/cie-paper-4/",
                 "subject": "Chemistry",
-                "paper_number": "4"
+                "paper_number": "4",
+                "level": "A Level"
             },
             {
                 "url": "https://www.physicsandmathstutor.com/past-papers/a-level-physics/cie-paper-4/",
                 "subject": "Physics",
-                "paper_number": "4"
+                "paper_number": "4",
+                "level": "A Level"
             },
             {
                 "url": "https://www.physicsandmathstutor.com/past-papers/a-level-biology/cie-paper-4/",
                 "subject": "Biology",
-                "paper_number": "4"
+                "paper_number": "4",
+                "level": "A Level"
             },
             {
                 "url": "https://www.physicsandmathstutor.com/past-papers/a-level-maths/cie-paper-1/",
                 "subject": "Mathematics",
-                "paper_number": "1"
+                "paper_number": "1",
+                "level": "AS Level"
             },
             {
                 "url": "https://www.physicsandmathstutor.com/past-papers/a-level-maths/cie-paper-3/",
                 "subject": "Mathematics",
-                "paper_number": "3"
+                "paper_number": "3",
+                "level": "A Level"
+            },
+            
+            # IGCSE Level
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/igcse-chemistry/",
+                "subject": "Chemistry",
+                "paper_number": "1",
+                "level": "IGCSE"
+            },
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/igcse-physics/",
+                "subject": "Physics",
+                "paper_number": "1",
+                "level": "IGCSE"
+            },
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/igcse-biology/",
+                "subject": "Biology",
+                "paper_number": "1",
+                "level": "IGCSE"
+            },
+            
+            # O Level
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/o-level-chemistry/",
+                "subject": "Chemistry",
+                "paper_number": "1",
+                "level": "O Level"
+            },
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/o-level-physics/",
+                "subject": "Physics",
+                "paper_number": "1",
+                "level": "O Level"
+            },
+            
+            # Pre-U Level
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/pre-u-chemistry/",
+                "subject": "Chemistry",
+                "paper_number": "1",
+                "level": "Pre-U"
             }
         ]
 
@@ -45,7 +93,7 @@ class CAIEScraper(BaseScraper):
         
         session = get_polite_session()
         for source in self.sources:
-            logger.info(f"Scraping CAIE {source['subject']} Paper {source['paper_number']} from PMT")
+            logger.info(f"Scraping CAIE {source['subject']} {source['level']} Paper {source['paper_number']} from PMT")
             resp = polite_get(session, source['url'])
             if resp.status_code != 200:
                 continue
@@ -58,7 +106,8 @@ class CAIEScraper(BaseScraper):
                     pdf_links.append({
                         "url": href,
                         "subject": source["subject"],
-                        "paper_number": source["paper_number"]
+                        "paper_number": source["paper_number"],
+                        "level": source["level"]
                     })
                     
         return pdf_links
@@ -90,7 +139,7 @@ class CAIEScraper(BaseScraper):
             
             meta = {
                 "subject": item["subject"],
-                "level": "A Level",
+                "level": item["level"],
                 "year": year,
                 "paper_number": item["paper_number"],
                 "mark_scheme_url": mark_scheme_url
