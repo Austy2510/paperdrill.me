@@ -42,16 +42,21 @@ export default function RecentPapersFilter({ boards, papers, children }: RecentP
           </p>
         </div>
 
-        <div className="w-full max-w-3xl relative group">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
-          <input 
-            type="text" 
-            placeholder="Search concepts (e.g. 'enthalpy', 'reflux', 'Newton's Laws')..." 
-            className="w-full bg-card border-2 border-transparent focus:border-primary/20 rounded-[2rem] py-6 pl-16 pr-8 text-xl font-medium outline-none shadow-xl shadow-primary/5 focus:shadow-primary/10 transition-all"
-          />
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 bg-primary text-primary-foreground px-8 py-3 rounded-[1.5rem] font-bold text-sm shadow-lg shadow-primary/20 hover:scale-105 transition-transform active:scale-95">
-            Search
-          </button>
+        <div className="w-full max-w-4xl relative group mt-4">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 rounded-full blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
+          <div className="relative flex items-center bg-card/80 backdrop-blur-xl border border-foreground/10 rounded-full shadow-2xl shadow-primary/5 focus-within:shadow-primary/20 focus-within:border-primary/30 transition-all duration-300 p-2">
+            <div className="pl-6 pr-4">
+              <Search className="w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            </div>
+            <input 
+              type="text" 
+              placeholder="Search concepts (e.g. 'enthalpy', 'reflux', 'Newton's Laws')..." 
+              className="flex-1 bg-transparent border-none py-4 text-xl font-medium outline-none placeholder:text-muted-foreground/50"
+            />
+            <button className="bg-primary text-primary-foreground px-10 py-4 rounded-full font-black text-sm shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest ml-2">
+              Search
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
@@ -88,43 +93,51 @@ export default function RecentPapersFilter({ boards, papers, children }: RecentP
             </h3>
             <button className="text-xs font-bold text-primary hover:underline">View All</button>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {filteredPapers.map((p, i) => (
               <motion.div 
                 key={i} 
-                whileHover={{ x: 5 }}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-card border hover:border-primary/30 transition-all cursor-pointer group"
+                whileHover={{ scale: 1.01 }}
+                className="flex items-center gap-4 p-5 rounded-2xl bg-card border shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer group"
               >
-                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center font-bold text-sm group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-inner">
-                  {p.year % 100}
+                <div className="w-14 h-14 rounded-2xl bg-secondary flex flex-col items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-inner border border-foreground/5">
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Yr</span>
+                  <span className="font-black text-lg leading-none">{p.year % 100}</span>
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-foreground/90">{p.subject} - {p.paper}</p>
-                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{p.board} • {p.level} • {p.session || ""}</p>
+                  <p className="font-bold text-lg text-foreground/90 group-hover:text-primary transition-colors">{p.subject} - {p.paper}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{p.board}</span>
+                    <span className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{p.level}</span>
+                    {p.session && <span className="px-2 py-0.5 rounded-md bg-primary/10 text-[10px] font-bold text-primary uppercase tracking-wider">{p.session}</span>}
+                  </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground/30 group-hover:text-primary transition-colors" />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary group-hover:bg-primary/20 transition-colors">
+                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
               </motion.div>
             ))}
           </div>
         </section>
 
         {/* Trending / Insights */}
-        <section className="flex flex-col gap-6">
+        <section className="flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
           <div>
             <h3 className="text-sm font-bold tracking-widest uppercase text-muted-foreground mb-6 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" /> Insights
+              <TrendingUp className="w-4 h-4" /> AI Insights
             </h3>
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-primary to-purple-600 text-white shadow-xl shadow-primary/20 relative overflow-hidden group">
-              <div className="absolute -bottom-4 -right-4 w-32 h-32 opacity-10 group-hover:scale-110 transition-transform bg-white rounded-full blur-2xl" />
+            <div className="p-8 rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 text-white shadow-2xl shadow-purple-900/20 relative overflow-hidden group">
+              <div className="absolute -top-12 -right-12 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl group-hover:opacity-20 transition-opacity" />
+              <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-black opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity" />
               <div className="relative z-10">
-                <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-6">
-                   <Clock className="w-5 h-5" />
+                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center mb-6 shadow-inner">
+                   <Clock className="w-6 h-6 text-white" />
                 </div>
-                <h4 className="text-xl font-bold mb-3">Priority Topic</h4>
-                <p className="text-sm opacity-90 leading-relaxed mb-6 font-medium">
+                <h4 className="text-2xl font-black mb-3 tracking-tight">Priority Topic</h4>
+                <p className="text-sm opacity-90 leading-relaxed mb-8 font-medium">
                   "Organic Chemistry equations appear in 85% of Edexcel Unit 4 papers. Master the mechanisms for reflux!"
                 </p>
-                <button className="w-full py-3 rounded-xl bg-white text-primary font-bold text-xs shadow-lg hover:bg-white/90 transition-all uppercase tracking-widest">
+                <button className="w-full py-3.5 rounded-xl bg-white text-purple-700 font-bold text-sm shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:scale-[1.02] transition-all uppercase tracking-widest active:scale-95">
                   Deep Dive
                 </button>
               </div>

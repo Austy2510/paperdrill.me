@@ -47,15 +47,23 @@ export default function SubjectGrid({ subjects }: { subjects: SubjectData[] }) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.1 }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            className="group relative p-6 rounded-3xl bg-card border shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all cursor-pointer overflow-hidden"
+            whileHover={{ y: -5 }}
+            className="group relative p-6 rounded-[2rem] bg-card border border-foreground/5 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all cursor-pointer overflow-hidden flex flex-col justify-between h-48"
           >
-            <div className={`absolute top-0 right-0 w-32 h-32 ${s.color} opacity-5 blur-3xl -mr-16 -mt-16 group-hover:opacity-10 transition-opacity`} />
-            <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform origin-left">{s.icon}</div>
-            <h4 className="text-xl font-bold mb-1">{s.name}</h4>
-            <p className="text-sm text-muted-foreground font-medium">{s.count} Questions</p>
-            <div className="mt-6 flex items-center text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 tracking-widest uppercase">
-              EXPLORE <ChevronRight className="w-3 h-3 ml-1" />
+            <div className={`absolute top-0 right-0 w-48 h-48 ${s.color} opacity-0 blur-[50px] -mr-20 -mt-20 group-hover:opacity-15 transition-opacity duration-500`} />
+            
+            <div className="flex justify-between items-start z-10">
+              <div className="w-14 h-14 rounded-2xl bg-secondary/50 flex items-center justify-center text-3xl transform group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300 shadow-inner border border-white/10 backdrop-blur-sm">
+                {s.icon}
+              </div>
+              <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
+                <ChevronRight className="w-4 h-4 text-primary" />
+              </div>
+            </div>
+
+            <div className="z-10 mt-auto">
+              <h4 className="text-2xl font-black tracking-tight mb-1">{s.name}</h4>
+              <p className="text-xs text-muted-foreground font-bold tracking-widest uppercase">{s.count} Questions</p>
             </div>
           </motion.div>
         ))}
