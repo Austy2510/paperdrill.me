@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Exam Vault | AI-Powered Exam Preparation",
@@ -25,8 +14,8 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="h-full antialiased">
-        <body className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col`}>
+      <html lang="en" className="h-full antialiased font-sans">
+        <body className="min-h-full flex flex-col font-sans">
           {children}
         </body>
       </html>

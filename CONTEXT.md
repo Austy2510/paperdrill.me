@@ -248,40 +248,38 @@ Available knobs:
 
 ---
 
-## 6. Relationship to PaperDrill
+## 6. Relationship to the Web Dashboard (Exam Vault)
 
-- PaperDrill (`artifacts/paperdrill` + `artifacts/api-server`) is a fully
-  separate **Node.js / TypeScript** app stack that uses **Postgres +
-  Drizzle**. It's already serving the MVP and has its own seed data.
-- The Python scraper here is a **standalone pipeline** that writes to a
-  **separate SQLite database**. It does not yet feed data into the
-  PaperDrill Postgres DB.
-- When ready to merge the two, write a small sync script that reads
-  `scraper/data/papers.db` and upserts into the Drizzle schema. The
-  schemas are intentionally aligned (board / subject / year /
-  paper_number / question_number) to make this straightforward.
+- The main Web Dashboard (Exam Vault) is a fully separate **Next.js / TypeScript** app stack that uses **Neon Postgres + Drizzle ORM**. It is now serving the MVP frontend and connects directly to the new cloud database.
+- The Python scraper here is a **standalone pipeline** that writes to a **separate SQLite database** (by default). 
+- **May 2026 Update**: The web dashboard is now fully functional with:
+  - Neon Serverless Postgres integration.
+  - Sidebar routing (Overview, Advanced Search, Saved Questions, Syllabus Map, Timeline).
+  - OpenRouter API integration for the AI Tutor.
+  - A database seed script with mock data to power the dashboard until the real scraper data is synced.
+- **Syncing Data**: When ready to merge the two, use the sync script that reads `scraper/data/papers.db` and upserts into the Drizzle Neon Postgres schema. The schemas are aligned (board / subject / year / paper_number / question_number) to make this straightforward.
 
 ---
 
-## 7. Final state (as of Apr 2026)
+## 7. Final state (as of May 2026)
 
 ### What was built
 - `scraper/` directory with full Python pipeline (requests, BeautifulSoup4, pdfplumber, pytesseract, **Playwright**)
 - `database.py` — SQLite schema with Postgres-compatible types
 - `sync_to_postgres.py` — generates correct Postgres upsert SQL
 - `tagger.py` — tags questions from existing DB data
-- CLI: `init`, `run {caie|dhaka|edexcel}`, `schedule`, `sync-to-postgres`, `tag-questions`
+- **Web Dashboard**: Fully functional Next.js App Router setup with Clerk authentication, Neon PostgreSQL, Drizzle ORM, and OpenRouter AI integration.
 
-### Key changes (live scraping fix session)
-1. **CAIE (`caie.py`)**: Added mandatory `subject_code` filter in `_find_pdf_links` — session pages aggregate ALL subject PDFs; filter ensures only matching codes pass. Updated URL builder with PapaCambridge subject-specific patterns.
-2. **Edexcel (`edexcel.py`)**: Complete rewrite. Primary source is now **PhysicsAndMathsTutor (PMT)** with Playwright-based directory crawling. Added `EDEXCEL_FILENAME_RE` parser for standardized filenames. ExamSolutions kept as static fallback.
-3. **Dhaka (`dhaka.py`)**: Complete rewrite. Crawls admissionwar HSC index → discovers 19+ subject pages → extracts embedded exam images from `ibb.co` → downloads and converts to PDF using **Pillow** → ingests through standard pipeline. lekhaporabd kept for answer PDFs.
-4. **Config**: `USE_PLAYWRIGHT` now defaults to `true`.
-5. **Requirements**: Added `playwright>=1.40`.
-6. **Integration / Server fix**: Resolved API server deployment port mismatch. Fixed `artifacts/api-server/.env` to use `PORT=8081` mapping correctly to the external routing setup, restoring access to the main PaperDrill application.
+### Key changes (live scraping fix session & frontend integration)
+1. **CAIE (`caie.py`)**: Added mandatory `subject_code` filter in `_find_pdf_links`. Updated URL builder with PapaCambridge patterns.
+2. **Edexcel (`edexcel.py`)**: Complete rewrite using **PhysicsAndMathsTutor (PMT)** with Playwright-based directory crawling. 
+3. **Dhaka (`dhaka.py`)**: Crawls admissionwar HSC index → extracts embedded exam images from `ibb.co` → converts to PDF using **Pillow**.
+4. **Database Migration**: Switched the primary web dashboard database from local SQLite/Azure to a **Neon Serverless Postgres** instance.
+5. **Frontend Routing**: Implemented a persistent `(dashboard)` layout with functional Next.js sidebar links and placeholder pages for Search, Saved, Syllabus, and Timeline.
+6. **AI Tutor**: Configured the OpenRouter API key and backend route to enable the DeepSeek-powered AI Tutor on the dashboard.
 
 ### Next steps
-1. **Full live run**: Execute `python main.py run all` to populate the database
-2. Wire `sync-to-postgres` + `tag-questions` into Docker container startup
-3. **Improve Bangla numeral segmentation** to handle mid-block splits
-4. **Topic tagging**: backfill `questions.topic_tag` once real data exists
+1. **Full live run**: Execute `python main.py run all` to populate the SQLite database.
+2. **Execute Database Sync**: Run the `sync_to_postgres.py` script to push the scraped data into the new Neon Postgres database.
+3. **Improve Bangla numeral segmentation** to handle mid-block splits.
+4. **Flesh out Frontend Pages**: Turn the placeholder pages (Advanced Search, Saved Questions) into fully functional React components interacting with the real database data.
