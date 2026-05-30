@@ -14,6 +14,20 @@ const QUICK_PROMPTS = [
   "What are transition metal properties?",
 ];
 
+/** Extract text from a UIMessage's parts array (AI SDK v5+) */
+function getMessageText(message: { content?: string; parts?: Array<{ type: string; text?: string }> }): string {
+  // AI SDK v5+ uses parts
+  if (message.parts && Array.isArray(message.parts)) {
+    return message.parts
+      .filter((p) => p.type === 'text')
+      .map((p) => p.text ?? '')
+      .join('');
+  }
+  // Fallback for older SDK or plain content
+  if (typeof message.content === 'string') return message.content;
+  return '';
+}
+
 export default function AITutor() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -24,14 +38,10 @@ export default function AITutor() {
   const [input, setInput] = useState('');
   const isLoading = status === 'submitted' || status === 'streaming';
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setInput(e.target.value);
-  };
-
   const handleSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
     if (!input.trim()) return;
-    sendMessage({ role: 'user', content: input });
+    sendMessage(input);
     setInput('');
   };
 
@@ -41,7 +51,7 @@ export default function AITutor() {
   }, [messages]);
 
   const sendQuickPrompt = (prompt: string) => {
-    sendMessage({ role: 'user', content: prompt });
+    sendMessage(prompt);
   };
 
   const clearChat = () => setMessages([]);
@@ -161,7 +171,7 @@ export default function AITutor() {
                             ? 'bg-primary text-primary-foreground rounded-tr-sm'
                             : 'bg-muted/60 border rounded-tl-sm'
                         }`}>
-                          {m.content}
+                          {getMessageText(m as any)}
                         </div>
                         {m.role === 'user' && (
                           <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-1">
@@ -196,14 +206,14 @@ export default function AITutor() {
                     <textarea
                       value={input}
                       onChange={(e) => {
-                        handleInputChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
+                        setInput(e.target.value);
                         e.target.style.height = 'auto';
                         e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
                       }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
-                          handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
+                          handleSubmit();
                         }
                       }}
                       placeholder="Ask anything... (Enter to send)"
