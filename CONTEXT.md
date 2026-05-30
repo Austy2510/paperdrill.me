@@ -278,10 +278,16 @@ Available knobs:
 5. **Frontend Routing**: Implemented a persistent `(dashboard)` layout with functional Next.js sidebar links and placeholder pages for Search, Saved, Syllabus, and Timeline.
 6. **AI Tutor**: Configured the OpenRouter API key and backend route to enable the DeepSeek-powered AI Tutor on the dashboard.
 
-7. **AI Tutor Fix**: Refactored the AITutor component and backend route (`apps/web/app/api/chat/route.ts`) to correctly use the Vercel AI SDK streamText with `toUIMessageStreamResponse()`, and updated the `useChat` hook integration to pass the query object format (`{ text: input }` and `{ text: prompt }`) into the `sendMessage` method, completely resolving the `TypeError: Cannot use 'in' operator to search for 'text'` crash and restoring full chat functionality.
+7. **AI Tutor Fix**: Refactored the client-side `AITutor.tsx` and server-side chat route (`apps/web/app/api/chat/route.ts`) to correctly align with Vercel's `@ai-sdk/react` v5+ API interface:
+   - Implemented message extractor `getMessageText` to safely parse streamed `parts` array in client components.
+   - Handled text submissions through a unified `handleFormSubmit` and a custom local state `input` variable to invoke `sendMessage({ text: input })`.
+   - Prevented all form-submit page reloads by mapping `e?.preventDefault()` to form submissions and the textarea `onKeyDown` Enter key intercept.
+   - Fixed model schema mismatch crashes in `streamText` by calling `convertToModelMessages(messages)` inside the backend chat route.
+   - Verified functionality end-to-end with an automated Playwright browser test directly on the live website ([www.paperdrill.me](https://www.paperdrill.me)).
 
 ### Next steps
 1. **Full live run**: Execute `python main.py run all` to populate the SQLite database.
 2. **Execute Database Sync**: Run the `sync_to_postgres.py` script to push the scraped data into the new Neon Postgres database.
 3. **Improve Bangla numeral segmentation** to handle mid-block splits.
 4. **Flesh out Frontend Pages**: Turn the placeholder pages (Advanced Search, Saved Questions) into fully functional React components interacting with the real database data.
+
