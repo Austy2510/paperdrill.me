@@ -278,7 +278,7 @@ Available knobs:
 5. **Frontend Routing**: Implemented a persistent `(dashboard)` layout with functional Next.js sidebar links and placeholder pages for Search, Saved, Syllabus, and Timeline.
 6. **AI Tutor**: Configured the OpenRouter API key and backend route to enable the DeepSeek-powered AI Tutor on the dashboard.
 
-7. **AI Tutor Fix**: Refactored the AITutor component and backend route (`app/api/chat/route.ts`) to correctly use the Vercel AI SDK v6 API (`toTextStreamResponse` and manual input state with `sendMessage`), resolving the chat crash and restoring functionality.
+7. **AI Tutor Fix**: Refactored the AITutor component and backend route (`apps/web/app/api/chat/route.ts`) to correctly use the Vercel AI SDK streamText with `toUIMessageStreamResponse()`, and updated the `useChat` hook integration to pass the query object format (`{ text: input }` and `{ text: prompt }`) into the `sendMessage` method, completely resolving the `TypeError: Cannot use 'in' operator to search for 'text'` crash and restoring full chat functionality.
 
 ### Next steps
 1. **Full live run**: Execute `python main.py run all` to populate the SQLite database.

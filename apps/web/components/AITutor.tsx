@@ -32,16 +32,22 @@ export default function AITutor() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, sendMessage, status, setMessages } = useChat({
+  const { messages, sendMessage, status, setMessages, error } = useChat({
     api: '/api/chat',
   });
   const [input, setInput] = useState('');
   const isLoading = status === 'submitted' || status === 'streaming';
 
+  useEffect(() => {
+    if (error) {
+      console.error('AI Tutor error:', error);
+    }
+  }, [error]);
+
   const handleSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
     if (!input.trim()) return;
-    sendMessage(input);
+    sendMessage({ text: input });
     setInput('');
   };
 
@@ -51,7 +57,7 @@ export default function AITutor() {
   }, [messages]);
 
   const sendQuickPrompt = (prompt: string) => {
-    sendMessage(prompt);
+    sendMessage({ text: prompt });
   };
 
   const clearChat = () => setMessages([]);
