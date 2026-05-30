@@ -3,7 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Exam Vault | AI-Powered Exam Preparation",
+  title: "PaperDrill | AI-Powered Exam Preparation",
   description: "The ultimate platform for exam paper discovery and AI-assisted learning.",
 };
 

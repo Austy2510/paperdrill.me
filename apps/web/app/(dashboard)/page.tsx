@@ -24,10 +24,18 @@ export default async function Dashboard() {
 
   // Fetch Recent Papers
   const allPapers = await db.select().from(papersTable).orderBy(desc(papersTable.createdAt)).limit(10);
+  const mappedPapers = allPapers.map(p => ({
+    board: p.board,
+    level: p.level,
+    year: p.year,
+    subject: p.subject,
+    session: p.paperType || "QP",
+    paper: `Paper ${p.paperNumber}`,
+  }));
   
   return (
     <div className="p-8 flex flex-col gap-12 max-w-7xl mx-auto w-full">
-      <RecentPapersFilter boards={boardNames} papers={allPapers}>
+      <RecentPapersFilter boards={boardNames} papers={mappedPapers}>
         <SubjectGrid subjects={subjectsData} />
       </RecentPapersFilter>
     </div>

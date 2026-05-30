@@ -18,9 +18,22 @@ export default function AITutor() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat({
+  const { messages, sendMessage, status, setMessages } = useChat({
     api: '/api/chat',
   });
+  const [input, setInput] = useState('');
+  const isLoading = status === 'submitted' || status === 'streaming';
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+  };
+
+  const handleSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
+    if (!input.trim()) return;
+    sendMessage({ role: 'user', content: input });
+    setInput('');
+  };
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -28,12 +41,7 @@ export default function AITutor() {
   }, [messages]);
 
   const sendQuickPrompt = (prompt: string) => {
-    handleInputChange({ target: { value: prompt } } as React.ChangeEvent<HTMLInputElement>);
-    // Submit after state update
-    setTimeout(() => {
-      const form = document.getElementById('ai-tutor-form') as HTMLFormElement;
-      form?.requestSubmit();
-    }, 50);
+    sendMessage({ role: 'user', content: prompt });
   };
 
   const clearChat = () => setMessages([]);
@@ -204,7 +212,7 @@ export default function AITutor() {
                     />
                     <button
                       type="submit"
-                      disabled={!input.trim() || isLoading}
+                      disabled={!input?.trim() || isLoading}
                       className="p-2.5 bg-primary text-primary-foreground rounded-xl disabled:opacity-40 transition-opacity hover:opacity-90 shrink-0"
                     >
                       <Send className="w-4 h-4" />

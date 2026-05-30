@@ -32,7 +32,7 @@ export default function DashboardSidebar() {
         <div className="gradient-primary w-10 h-10 rounded-xl flex items-center justify-center shadow-lg">
           <BookOpen className="text-white w-6 h-6" />
         </div>
-        <span className="text-xl font-bold tracking-tight hidden lg:block text-gradient">Exam Vault</span>
+        <span className="text-xl font-bold tracking-tight hidden lg:block text-gradient">PaperDrill</span>
       </Link>
 
       <nav className="flex-1 w-full flex flex-col gap-2">

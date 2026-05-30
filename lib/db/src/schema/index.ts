@@ -7,3 +7,5 @@ export * from "./topicSearches";
 export * from "./syllabusObjectives";
 export * from "./questionTopics";
 export * from "./assets";
+export * from "./savedQuestions";
+

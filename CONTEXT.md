@@ -248,9 +248,9 @@ Available knobs:
 
 ---
 
-## 6. Relationship to the Web Dashboard (Exam Vault)
+## 6. Relationship to the Web Dashboard (PaperDrill)
 
-- The main Web Dashboard (Exam Vault) is a fully separate **Next.js / TypeScript** app stack that uses **Neon Postgres + Drizzle ORM**. It is now serving the MVP frontend and connects directly to the new cloud database.
+- The main Web Dashboard (PaperDrill) is a fully separate **Next.js / TypeScript** app stack that uses **Neon Postgres + Drizzle ORM**. It is now serving the MVP frontend and connects directly to the new cloud database.
 - The Python scraper here is a **standalone pipeline** that writes to a **separate SQLite database** (by default). 
 - **May 2026 Update**: The web dashboard is now fully functional with:
   - Neon Serverless Postgres integration.
@@ -277,6 +277,8 @@ Available knobs:
 4. **Database Migration**: Switched the primary web dashboard database from local SQLite/Azure to a **Neon Serverless Postgres** instance.
 5. **Frontend Routing**: Implemented a persistent `(dashboard)` layout with functional Next.js sidebar links and placeholder pages for Search, Saved, Syllabus, and Timeline.
 6. **AI Tutor**: Configured the OpenRouter API key and backend route to enable the DeepSeek-powered AI Tutor on the dashboard.
+
+7. **AI Tutor Fix**: Refactored the AITutor component and backend route (`app/api/chat/route.ts`) to correctly use the Vercel AI SDK v6 API (`toTextStreamResponse` and manual input state with `sendMessage`), resolving the chat crash and restoring functionality.
 
 ### Next steps
 1. **Full live run**: Execute `python main.py run all` to populate the SQLite database.
