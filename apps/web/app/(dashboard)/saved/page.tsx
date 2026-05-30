@@ -1,26 +1,13 @@
 import React from "react";
 import { db, savedQuestionsTable, questionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { getUserId } from "@/app/actions";
 import SavedQuestionsList from "@/components/SavedQuestionsList";
 
 export const dynamic = "force-dynamic";
 
 export default async function SavedQuestionsPage() {
-  let userId: string | null = null;
-  try {
-    const authData = await auth();
-    userId = authData.userId;
-  } catch (err) {
-    if (process.env.NODE_ENV !== "production") {
-      userId = "mock_dev_user";
-    }
-  }
-
-  if (!userId) {
-    redirect("/sign-in");
-  }
+  const userId = await getUserId();
 
   // Fetch saved questions for this specific user
   const savedQuestions = await db

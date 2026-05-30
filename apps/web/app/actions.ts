@@ -1,11 +1,11 @@
 "use server";
 
-import { db, savedQuestionsTable } from "@workspace/db";
+import { db, savedQuestionsTable, telemetryTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
-async function getUserId() {
+export async function getUserId() {
   const cookieStore = await cookies();
   const deviceId = cookieStore.get("deviceId")?.value;
   return deviceId || "anonymous_user";
