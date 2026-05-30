@@ -2,8 +2,9 @@
 
 import { useChat } from '@ai-sdk/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Send, User, X, Sparkles, Minimize2, RotateCcw, ChevronDown } from 'lucide-react';
+import { Bot, Send, User, X, Sparkles, Minimize2, RotateCcw, ChevronDown, Lock, PlayCircle } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { logTelemetry } from '../app/actions';
 
 const QUICK_PROMPTS = [
   "Explain Le Chatelier's Principle",
@@ -31,6 +32,9 @@ function getMessageText(message: { content?: string; parts?: Array<{ type: strin
 export default function AITutor() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [simulatingAd, setSimulatingAd] = useState(false);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const {
     messages,
@@ -45,6 +49,24 @@ export default function AITutor() {
   const isLoading = status === 'submitted' || status === 'streaming';
 
   useEffect(() => {
+    // Check unlock status on mount
+    const unlocked = document.cookie.includes("ai_tutor_unlocked=true");
+    setIsUnlocked(unlocked);
+  }, []);
+
+  const handleUnlock = () => {
+    setSimulatingAd(true);
+    // Simulate watching a 3-second rewarded ad
+    setTimeout(() => {
+      document.cookie = "ai_tutor_unlocked=true; path=/; max-age=" + (60 * 60 * 24);
+      setIsUnlocked(true);
+      setSimulatingAd(false);
+      // Let's also log telemetry for this event
+      logTelemetry('ai_tutor_unlocked', 'Reward Ad Watched');
+    }, 3000);
+  };
+
+  useEffect(() => {
     if (error) {
       console.error('AI Tutor error:', error);
     }
@@ -57,8 +79,9 @@ export default function AITutor() {
 
   const handleFormSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || !isUnlocked) return;
     sendMessage({ text: input });
+    logTelemetry('ai_tutor_query', input);
     setInput('');
     // Reset textarea height to original
     const textarea = document.querySelector('textarea');
@@ -66,7 +89,9 @@ export default function AITutor() {
   };
 
   const sendQuickPrompt = (prompt: string) => {
+    if (!isUnlocked) return;
     sendMessage({ text: prompt });
+    logTelemetry('ai_tutor_query', prompt);
   };
 
   const clearChat = () => setMessages([]);
@@ -81,7 +106,7 @@ export default function AITutor() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 transition-transform active:scale-95 z-50 group"
+            className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 transition-transform active:scale-95 z-50 group"
           >
             <Sparkles className="w-6 h-6 group-hover:rotate-12 transition-transform" />
           </motion.button>
@@ -96,8 +121,8 @@ export default function AITutor() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 60, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 w-96 bg-card border shadow-2xl rounded-3xl flex flex-col overflow-hidden z-50"
-            style={{ height: isMinimized ? 'auto' : '600px' }}
+            className="fixed bottom-0 lg:bottom-6 right-0 lg:right-6 w-full lg:w-96 bg-card border shadow-2xl rounded-t-3xl lg:rounded-3xl flex flex-col overflow-hidden z-[60]"
+            style={{ height: isMinimized ? 'auto' : '80vh', maxHeight: isMinimized ? 'auto' : '600px' }}
           >
             {/* Header */}
             <div className="p-4 border-b bg-gradient-to-r from-primary/10 to-transparent flex items-center justify-between shrink-0">
@@ -143,9 +168,38 @@ export default function AITutor() {
             {!isMinimized && (
               <>
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 relative">
+                  {!isUnlocked && (
+                    <div className="absolute inset-0 z-10 backdrop-blur-md bg-background/60 flex flex-col items-center justify-center p-6 text-center">
+                      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                        <Lock className="w-8 h-8" />
+                      </div>
+                      <h4 className="text-xl font-bold mb-2">Unlock AI Tutor</h4>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        Support PaperDrill by watching a short ad to unlock unlimited AI Tutor access for 24 hours.
+                      </p>
+                      <button
+                        onClick={handleUnlock}
+                        disabled={simulatingAd}
+                        className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-primary text-primary-foreground rounded-xl font-semibold transition-all hover:bg-primary/90 disabled:opacity-70"
+                      >
+                        {simulatingAd ? (
+                          <>
+                            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Playing Ad...
+                          </>
+                        ) : (
+                          <>
+                            <PlayCircle className="w-5 h-5" />
+                            Watch Ad to Unlock
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
                   {messages.length === 0 ? (
-                    <div className="flex flex-col gap-4 h-full">
+                    <div className={`flex flex-col gap-4 h-full ${!isUnlocked ? 'blur-sm' : ''}`}>
                       <div className="flex flex-col items-center text-center p-4 gap-3 mt-4">
                         <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center">
                           <Sparkles className="w-7 h-7 text-primary/40" />
@@ -215,11 +269,12 @@ export default function AITutor() {
                 <form
                   id="ai-tutor-form"
                   onSubmit={handleFormSubmit}
-                  className="p-3 border-t bg-muted/10 shrink-0"
+                  className="p-3 border-t bg-muted/10 shrink-0 pb-safe"
                 >
                   <div className="relative flex items-end gap-2">
                     <textarea
                       value={input}
+                      disabled={!isUnlocked}
                       onChange={(e) => {
                         setInput(e.target.value);
                         e.target.style.height = 'auto';
@@ -231,13 +286,13 @@ export default function AITutor() {
                           handleFormSubmit();
                         }
                       }}
-                      placeholder="Ask anything... (Enter to send)"
+                      placeholder={isUnlocked ? "Ask anything... (Enter to send)" : "Unlock AI Tutor to ask questions..."}
                       rows={1}
-                      className="flex-1 bg-background border rounded-2xl py-2.5 px-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none min-h-[42px] max-h-[120px]"
+                      className="flex-1 bg-background border rounded-2xl py-2.5 px-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none min-h-[42px] max-h-[120px] disabled:opacity-50"
                     />
                     <button
                       type="submit"
-                      disabled={!input?.trim() || isLoading}
+                      disabled={!input?.trim() || isLoading || !isUnlocked}
                       className="p-2.5 bg-primary text-primary-foreground rounded-xl disabled:opacity-40 transition-opacity hover:opacity-90 shrink-0"
                     >
                       <Send className="w-4 h-4" />

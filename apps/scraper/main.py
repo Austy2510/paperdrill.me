@@ -15,8 +15,25 @@ def init_db(conn_str: str):
     If the tables don't exist, it should raise a warning.
     """
     import psycopg2
+    import time
+    max_retries = 5
+    delay = 2
+    conn = None
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"Connecting to verify database schema (attempt {attempt + 1}/{max_retries})...")
+            conn = psycopg2.connect(conn_str)
+            break
+        except Exception as e:
+            logger.warning(f"Verification connection attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(delay)
+                delay *= 2
+            else:
+                logger.error("Failed to connect for schema verification.")
+                raise e
+
     try:
-        conn = psycopg2.connect(conn_str)
         cursor = conn.cursor()
         
         # Check if papers table exists

@@ -13,7 +13,6 @@
     "@ai-sdk/openai": "^3.0.66",
     "@ai-sdk/react": "^3.0.194",
     "@base-ui/react": "^1.4.1",
-    "@clerk/nextjs": "^7.2.7",
     "@workspace/db": "workspace:*",
     "ai": "^6.0.192",
     "class-variance-authority": "^0.7.1",

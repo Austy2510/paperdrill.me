@@ -2,24 +2,17 @@
 
 import { db, savedQuestionsTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+
+async function getUserId() {
+  const cookieStore = await cookies();
+  const deviceId = cookieStore.get("deviceId")?.value;
+  return deviceId || "anonymous_user";
+}
 
 export async function toggleSavedQuestion(questionId: string) {
-  let userId: string | null = null;
-  try {
-    const authData = await auth();
-    userId = authData.userId;
-  } catch (err) {
-    console.log("Clerk auth failed/bypassed in toggleSavedQuestion. Using mock_dev_user.");
-  }
-
-  if (!userId) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("Unauthorized");
-    }
-    userId = "mock_dev_user";
-  }
+  const userId = await getUserId();
 
   // Check if already saved
   const existing = await db
@@ -57,16 +50,7 @@ export async function toggleSavedQuestion(questionId: string) {
 }
 
 export async function getSavedQuestionStatus(questionId: string) {
-  let userId: string | null = null;
-  try {
-    const authData = await auth();
-    userId = authData.userId;
-  } catch (err) {
-    if (process.env.NODE_ENV !== "production") {
-      userId = "mock_dev_user";
-    }
-  }
-  if (!userId) return false;
+  const userId = await getUserId();
 
   const existing = await db
     .select()
@@ -83,25 +67,28 @@ export async function getSavedQuestionStatus(questionId: string) {
 }
 
 export async function clearAllSavedQuestions() {
-  let userId: string | null = null;
-  try {
-    const authData = await auth();
-    userId = authData.userId;
-  } catch (err) {
-    console.log("Clerk auth failed/bypassed in clearAllSavedQuestions. Using mock_dev_user.");
-  }
-
-  if (!userId) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("Unauthorized");
-    }
-    userId = "mock_dev_user";
-  }
+  const userId = await getUserId();
 
   await db
     .delete(savedQuestionsTable)
     .where(eq(savedQuestionsTable.userId, userId));
 
   revalidatePath("/saved");
+}
+
+export async function logTelemetry(eventType: string, eventData?: string, location?: string, ipAddress?: string) {
+  const userId = await getUserId();
+  
+  try {
+    await db.insert(telemetryTable).values({
+      deviceId: userId,
+      eventType,
+      eventData: eventData || null,
+      location: location || null,
+      ipAddress: ipAddress || null,
+    });
+  } catch (error) {
+    console.error("Failed to log telemetry:", error);
+  }
 }
 

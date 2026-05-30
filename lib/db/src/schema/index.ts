@@ -8,4 +8,4 @@ export * from "./syllabusObjectives";
 export * from "./questionTopics";
 export * from "./assets";
 export * from "./savedQuestions";
-
+export * from "./telemetry";

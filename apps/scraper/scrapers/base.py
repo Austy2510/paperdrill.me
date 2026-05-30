@@ -15,7 +15,27 @@ class BaseScraper:
         self.db_conn_str = db_conn_str
         self.board = board
         self.session = get_polite_session()
-        self.conn = psycopg2.connect(self.db_conn_str)
+        
+        # Connect to Postgres with robust retry logic for Serverless/Neon cold starts
+        import time
+        max_retries = 5
+        delay = 2
+        self.conn = None
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"Connecting to database (attempt {attempt + 1}/{max_retries})...")
+                self.conn = psycopg2.connect(self.db_conn_str)
+                logger.info("Successfully connected to database.")
+                break
+            except Exception as e:
+                logger.warning(f"Connection failed: {e}")
+                if attempt < max_retries - 1:
+                    logger.info(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                    delay *= 2
+                else:
+                    logger.error("Failed to connect to database after all retries.")
+                    raise e
         
     def __del__(self):
         if hasattr(self, 'conn') and self.conn:

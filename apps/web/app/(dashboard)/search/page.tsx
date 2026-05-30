@@ -3,6 +3,7 @@ import { Search, BookOpen, Zap, Filter } from "lucide-react";
 import { db, questionsTable } from "@workspace/db";
 import { ilike, or, desc, eq } from "drizzle-orm";
 import SaveBookmarkButton from "@/components/SaveBookmarkButton";
+import { logTelemetry } from "@/app/actions";
 
 interface SearchPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -50,6 +51,9 @@ export default async function AdvancedSearchPage({ searchParams }: SearchPagePro
     // Apply client filters
     if (subject) results = results.filter((r) => r.subject === subject);
     if (board) results = results.filter((r) => r.board === board);
+
+    // Log the search
+    logTelemetry("search", q);
   }
 
   const subjects = [...new Set(results.map((r) => r.subject))];
@@ -112,82 +116,90 @@ export default async function AdvancedSearchPage({ searchParams }: SearchPagePro
             )}
           </div>
 
+import GoogleAd from "@/components/GoogleAd";
+
+// ... existing code ...
+
           {/* Results grid */}
           <div className="flex flex-col gap-4">
             {results.length > 0 ? (
-              results.map((question) => (
-                <div
-                  key={question.id}
-                  className="bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all group"
-                >
-                  {/* Card header */}
-                  <div className="px-6 pt-5 pb-4 flex items-start justify-between gap-4">
-                    <div className="flex gap-2 flex-wrap items-center">
-                      <span className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-bold rounded-lg">
-                        {question.board} · {question.year}
-                      </span>
-                      <span className={`px-2.5 py-1 text-xs font-medium rounded-lg ${SUBJECT_COLORS[question.subject] ?? "bg-muted text-muted-foreground"}`}>
-                        {question.subject}
-                      </span>
-                      {question.topic && (
-                        <span className="px-2.5 py-1 bg-muted text-muted-foreground text-xs font-medium rounded-lg">
-                          {question.topic}
+              results.map((question, index) => (
+                <React.Fragment key={question.id}>
+                  <div className="bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all group">
+                    {/* Card header */}
+                    <div className="px-6 pt-5 pb-4 flex items-start justify-between gap-4">
+                      <div className="flex gap-2 flex-wrap items-center">
+                        <span className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-bold rounded-lg">
+                          {question.board} · {question.year}
                         </span>
-                      )}
-                      {question.difficulty && (
-                        <span className={`px-2.5 py-1 text-xs font-medium rounded-lg ${DIFFICULTY_COLORS[question.difficulty] ?? "bg-muted"}`}>
-                          {question.difficulty}
+                        <span className={`px-2.5 py-1 text-xs font-medium rounded-lg ${SUBJECT_COLORS[question.subject] ?? "bg-muted text-muted-foreground"}`}>
+                          {question.subject}
                         </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-1 rounded-lg">
-                        Q{question.questionNumber}
-                      </span>
-                      {question.marks && (
-                        <span className="text-xs font-bold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-lg">
-                          {question.marks}m
-                        </span>
-                      )}
-                      <SaveBookmarkButton
-                        questionId={question.id}
-                        questionText={question.questionText}
-                        board={question.board}
-                        subject={question.subject}
-                        year={question.year}
-                        topic={question.topic}
-                        questionNumber={question.questionNumber}
-                        answerText={question.answerText}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Question text */}
-                  <div className="px-6 pb-4">
-                    <div className="flex gap-2 mb-2">
-                      <BookOpen className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                      <p className="text-sm font-medium leading-relaxed whitespace-pre-line">
-                        {question.questionText}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Answer - collapsible */}
-                  <details className="group/details">
-                    <summary className="px-6 pb-4 cursor-pointer list-none">
-                      <div className="flex items-center gap-2 text-xs font-semibold text-primary hover:text-primary/80 transition-colors">
-                        <Zap className="w-3.5 h-3.5" />
-                        <span>Show Model Answer</span>
-                        <span className="ml-auto group-open/details:rotate-180 transition-transform">▼</span>
+                        {question.topic && (
+                          <span className="px-2.5 py-1 bg-muted text-muted-foreground text-xs font-medium rounded-lg">
+                            {question.topic}
+                          </span>
+                        )}
+                        {question.difficulty && (
+                          <span className={`px-2.5 py-1 text-xs font-medium rounded-lg ${DIFFICULTY_COLORS[question.difficulty] ?? "bg-muted"}`}>
+                            {question.difficulty}
+                          </span>
+                        )}
                       </div>
-                    </summary>
-                    <div className="px-6 pb-5 pt-2 border-t bg-muted/20">
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line font-mono">
-                        {question.answerText}
-                      </p>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-1 rounded-lg">
+                          Q{question.questionNumber}
+                        </span>
+                        {question.marks && (
+                          <span className="text-xs font-bold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-lg">
+                            {question.marks}m
+                          </span>
+                        )}
+                        <SaveBookmarkButton
+                          questionId={question.id}
+                          questionText={question.questionText}
+                          board={question.board}
+                          subject={question.subject}
+                          year={question.year}
+                          topic={question.topic}
+                          questionNumber={question.questionNumber}
+                          answerText={question.answerText}
+                        />
+                      </div>
                     </div>
-                  </details>
-                </div>
+
+                    {/* Question text */}
+                    <div className="px-6 pb-4">
+                      <div className="flex gap-2 mb-2">
+                        <BookOpen className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <p className="text-sm font-medium leading-relaxed whitespace-pre-line">
+                          {question.questionText}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Answer - collapsible */}
+                    <details className="group/details">
+                      <summary className="px-6 pb-4 cursor-pointer list-none">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-primary hover:text-primary/80 transition-colors">
+                          <Zap className="w-3.5 h-3.5" />
+                          <span>Show Model Answer</span>
+                          <span className="ml-auto group-open/details:rotate-180 transition-transform">▼</span>
+                        </div>
+                      </summary>
+                      <div className="px-6 pb-5 pt-2 border-t bg-muted/20">
+                        <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line font-mono">
+                          {question.answerText}
+                        </p>
+                      </div>
+                    </details>
+                  </div>
+                  
+                  {/* Google Ad Injection */}
+                  {(index + 1) % 5 === 0 && (
+                    <GoogleAd slot="search-results-ad" className="w-full min-h-[100px] my-2 border-dashed border-2" />
+                  )}
+                </React.Fragment>
               ))
             ) : (
               <div className="text-center p-16 bg-muted/20 border border-dashed rounded-2xl">

@@ -284,9 +284,14 @@ Available knobs:
    - Fixed model schema mismatch crashes in `streamText` by calling `convertToModelMessages(messages)` inside the backend chat route.
    - Verified functionality end-to-end with an automated Playwright browser test directly on the live website ([www.paperdrill.me](https://www.paperdrill.me)).
 7. **AI Auto-Tagger Script (`tagger.ts`)**: Reconstructed the script to natively use **OpenRouter (DeepSeek-Chat)** via native Node `fetch` and `.env` loading, enabling full-scale auto-tagging of thousands of database questions directly in Neon Postgres without external dependencies.
+8. **Authentication Migration**: Removed Clerk authentication completely. Transitioned to a frictionless, anonymous cookie-based `deviceId` system managed via Next.js Edge Middleware for user tracking.
+9. **Monetization & AdBlock Detection**: Integrated Google AdSense scripts with a mobile-first `GoogleAd` component. Implemented a honeypot `AdBlockDetector` that overlays and completely restricts access if an ad blocker is detected. The AI Tutor now uses a simulated "Rewarded Video" ad flow to unlock chat functionality via an `ai_tutor_unlocked` cookie.
+10. **Telemetry Logging**: Created a generic server action `logTelemetry` hooked up to a new `telemetry` Postgres table to track page views, app initializations, and detailed search queries (`q` parameter).
+11. **Mobile-first Sidebar Refactor**: Converted the desktop-only Sidebar into a responsive component that acts as a sleek bottom navigation bar on mobile devices.
+12. **SEO Rankings**: Added comprehensive metadata, keywords, and OpenGraph configurations to `layout.tsx` to ensure high ranking for CAIE, Edexcel, and Dhaka Board queries.
 
 ### Next steps
 1. **Full Scrape Run**: Run `python main.py run all` inside `apps/scraper` with high limit to scrape the full multi-subject past papers database.
 2. **Improve Bangla numeral segmentation** if the Dhaka Board scraper is re-enabled in a future phase.
-3. **Flesh out Frontend Pages**: Turn the placeholder pages (Advanced Search, Saved Questions) into fully functional React components interacting with the real database data.
+3. **Analytics Dashboard**: Build an internal metrics page to visualize the newly collected telemetry and tracking data.
 

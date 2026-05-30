@@ -1,3 +1,4 @@
+import "./env"; // MUST BE FIRST to load env before drizzle connections are initialized
 import { db, pool } from "./index";
 import { questionsTable } from "./schema/questions";
 import { count, isNull, eq, or } from "drizzle-orm";
