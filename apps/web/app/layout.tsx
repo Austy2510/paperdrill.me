@@ -23,12 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased font-sans">
       <head>
-        <Script
+        <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6392725786527871"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        ></script>
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <AdBlockDetector />
