@@ -3,6 +3,7 @@ import { Search, Bell } from "lucide-react";
 import AITutor from "@/components/AITutor";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import HeaderSearch from "@/components/HeaderSearch";
+import SEOFooter from "@/components/SEOFooter";
 
 export default function DashboardLayout({
   children,
@@ -29,6 +30,9 @@ export default function DashboardLayout({
 
         {/* Page Content */}
         {children}
+
+        {/* SEO Footer */}
+        <SEOFooter />
       </main>
       
       {/* Global AI Tutor for the Dashboard */}

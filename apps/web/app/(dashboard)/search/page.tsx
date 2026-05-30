@@ -4,7 +4,20 @@ import { db, questionsTable } from "@workspace/db";
 import { ilike, or, desc, eq } from "drizzle-orm";
 import SaveBookmarkButton from "@/components/SaveBookmarkButton";
 import { logTelemetry } from "@/app/actions";
+import type { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Search Past Paper Questions — CAIE, Edexcel, IGCSE Topics",
+  description:
+    "Search thousands of CAIE, Edexcel and IGCSE past paper questions by topic. Find Chemistry, Physics, Mathematics and Biology questions with instant model answers.",
+  alternates: { canonical: "https://www.paperdrill.me/search" },
+  openGraph: {
+    title: "Search Past Paper Questions by Topic | PaperDrill",
+    description:
+      "Search thousands of past paper questions across Chemistry, Physics, Mathematics and Biology. Filter by board, level and topic.",
+    url: "https://www.paperdrill.me/search",
+  },
+};
 interface SearchPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }

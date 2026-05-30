@@ -3,6 +3,20 @@ import { db, questionsTable } from "@workspace/db";
 import { count, desc } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { TrendingUp, BookOpen, Layers, Target } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Syllabus Map — Topic Coverage for CAIE, Edexcel & IGCSE",
+  description:
+    "Explore complete syllabus topic maps for CAIE, Edexcel and IGCSE. See question coverage by subject, board and topic area. Plan your revision with data-driven insights.",
+  alternates: { canonical: "https://www.paperdrill.me/syllabus" },
+  openGraph: {
+    title: "Syllabus Topic Map & Question Coverage | PaperDrill",
+    description:
+      "View topic-by-topic syllabus breakdowns for Chemistry, Physics, Mathematics and Biology across all major exam boards.",
+    url: "https://www.paperdrill.me/syllabus",
+  },
+};
 
 const SUBJECT_COLORS: Record<string, { bg: string; text: string; border: string; dot: string }> = {
   Chemistry:   { bg: "bg-emerald-500/10", text: "text-emerald-700", border: "border-emerald-500/20", dot: "bg-emerald-500" },

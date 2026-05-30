@@ -34,11 +34,11 @@ export default function RecentPapersFilter({ boards, papers, children }: RecentP
         className="text-center py-12 flex flex-col items-center gap-8"
       >
         <div className="flex flex-col gap-3">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight">
             What are you <span className="text-gradient">studying</span> today?
-          </h2>
-          <p className="text-muted-foreground text-lg font-medium">
-            Search over 45,000+ indexed exam questions with AI-powered insights.
+          </h1>
+          <p className="text-muted-foreground text-lg font-medium max-w-2xl mx-auto">
+            Search over 45,000+ indexed past paper questions from CAIE, Edexcel &amp; IGCSE with AI-powered model answers.
           </p>
         </div>
 
