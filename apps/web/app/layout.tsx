@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import AdBlockDetector from "../components/AdBlockDetector";
 import Script from "next/script";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   title: "PaperDrill | AI-Powered Exam Preparation & Past Papers",
@@ -34,6 +34,7 @@ export default function RootLayout({
         <AdBlockDetector />
         {children}
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || "G-XXXXXXXXXX"} />
+        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || "GTM-XXXXXXXX"} />
       </body>
     </html>
   );
