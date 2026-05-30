@@ -32,11 +32,18 @@ export default function AITutor() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, sendMessage, status, setMessages, error } = useChat({
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    setMessages,
+    append,
+    error,
+  } = useChat({
     api: '/api/chat',
   });
-  const [input, setInput] = useState('');
-  const isLoading = status === 'submitted' || status === 'streaming';
 
   useEffect(() => {
     if (error) {
@@ -44,20 +51,13 @@ export default function AITutor() {
     }
   }, [error]);
 
-  const handleSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
-    e?.preventDefault();
-    if (!input.trim()) return;
-    sendMessage({ text: input });
-    setInput('');
-  };
-
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const sendQuickPrompt = (prompt: string) => {
-    sendMessage({ text: prompt });
+    append({ role: 'user', content: prompt });
   };
 
   const clearChat = () => setMessages([]);
@@ -205,21 +205,27 @@ export default function AITutor() {
                 {/* Input */}
                 <form
                   id="ai-tutor-form"
-                  onSubmit={handleSubmit}
+                  onSubmit={(e) => {
+                    handleSubmit(e);
+                    // Reset textarea height to original
+                    const textarea = e.currentTarget.querySelector('textarea');
+                    if (textarea) textarea.style.height = 'auto';
+                  }}
                   className="p-3 border-t bg-muted/10 shrink-0"
                 >
                   <div className="relative flex items-end gap-2">
                     <textarea
                       value={input}
                       onChange={(e) => {
-                        setInput(e.target.value);
+                        handleInputChange(e);
                         e.target.style.height = 'auto';
                         e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
                       }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
-                          handleSubmit();
+                          const form = document.getElementById('ai-tutor-form') as HTMLFormElement;
+                          form?.requestSubmit();
                         }
                       }}
                       placeholder="Ask anything... (Enter to send)"
