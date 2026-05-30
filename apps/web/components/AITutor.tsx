@@ -32,6 +32,9 @@ export default function AITutor() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chat = useChat({
+    api: '/api/chat',
+  });
   const {
     messages,
     input,
@@ -41,9 +44,11 @@ export default function AITutor() {
     setMessages,
     append,
     error,
-  } = useChat({
-    api: '/api/chat',
-  });
+  } = chat;
+
+  useEffect(() => {
+    console.log('useChat keys:', Object.keys(chat));
+  }, []);
 
   useEffect(() => {
     if (error) {
