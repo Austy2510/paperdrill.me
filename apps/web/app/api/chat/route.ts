@@ -17,5 +17,5 @@ export async function POST(req: Request) {
     system: "You are the PaperDrill AI Tutor. You help students understand complex exam questions, provide step-by-step solutions, and offer study tips for boards like Edexcel, AQA, IB, Dhaka Board, and CAIE. Be encouraging, professional, and precise. Never just give the final answer away directly; guide the student to the solution.",
   });
 
-  return result.toTextStreamResponse();
+  return result.toUIMessageStreamResponse();
 }
