@@ -32,23 +32,17 @@ export default function AITutor() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chat = useChat({
-    api: '/api/chat',
-  });
   const {
     messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    isLoading,
+    sendMessage,
+    status,
     setMessages,
-    append,
     error,
-  } = chat;
-
-  useEffect(() => {
-    console.log('useChat keys:', Object.keys(chat));
-  }, []);
+  } = useChat({
+    api: '/api/chat',
+  });
+  const [input, setInput] = useState('');
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   useEffect(() => {
     if (error) {
@@ -64,14 +58,15 @@ export default function AITutor() {
   const handleFormSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
     if (!input.trim()) return;
-    handleSubmit(e);
+    sendMessage({ text: input });
+    setInput('');
     // Reset textarea height to original
     const textarea = document.querySelector('textarea');
     if (textarea) textarea.style.height = 'auto';
   };
 
   const sendQuickPrompt = (prompt: string) => {
-    append({ role: 'user', content: prompt });
+    sendMessage({ text: prompt });
   };
 
   const clearChat = () => setMessages([]);
@@ -226,7 +221,7 @@ export default function AITutor() {
                     <textarea
                       value={input}
                       onChange={(e) => {
-                        handleInputChange(e);
+                        setInput(e.target.value);
                         e.target.style.height = 'auto';
                         e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
                       }}
