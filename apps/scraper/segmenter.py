@@ -14,10 +14,6 @@ def segment_paper(full_text: str) -> List[Dict[str, Any]]:
     
     questions = []
     
-    # Very basic regex to split by Question numbers (e.g., "1.", "2.", "1 (a)")
-    # This will need to be refined based on the actual formatting of different boards.
-    # For now, we look for a newline followed by a number and a period or parenthesis.
-    
     # Split pattern: newline, maybe some whitespace, 1-2 digits, followed by . or ) or space(
     # e.g. "\n1." or "\n12)" or "\n1 ("
     split_pattern = r'\n\s*(?=\d{1,2}[\.\)\s])'
@@ -51,3 +47,52 @@ def segment_paper(full_text: str) -> List[Dict[str, Any]]:
         
     logger.info(f"Segmented into {len(questions)} questions.")
     return questions
+
+def segment_ms(ms_text: str) -> Dict[str, str]:
+    """
+    Segments the full text of a mark scheme into answers mapped by question number.
+    Combines subparts (e.g., 1(a), 1(b)) into a single consolidated answer for the question number.
+    """
+    if not ms_text:
+        return {}
+        
+    logger.info("Segmenting mark scheme text into answers...")
+    
+    answers = {}
+    
+    # Split pattern: newline, maybe some whitespace, 1-2 digits, followed by . or ) or space
+    split_pattern = r'\n\s*(?=\d{1,2}[\.\)\s])'
+    segments = re.split(split_pattern, ms_text)
+    
+    for segment in segments[1:]:
+        segment = segment.strip()
+        if not segment:
+            continue
+            
+        # Extract the question number and subparts
+        # Standard: "1 (a) ...", "1. ...", "1) ..."
+        match = re.match(r'^(\d{1,2})\s*([\.\)\s\(a-z]*)(.*)', segment, re.DOTALL)
+        if match:
+            q_num = match.group(1).strip()
+            subpart = match.group(2).strip()
+            ans_content = match.group(3).strip()
+            
+            # Reconstruct subpart with formatting
+            full_ans = ""
+            if subpart:
+                # Clean up subpart: e.g. "(a)" or "a"
+                sub_clean = subpart.strip().strip('.').strip(')').strip('(').strip()
+                if sub_clean:
+                    full_ans = f"({sub_clean}) {ans_content}"
+                else:
+                    full_ans = ans_content
+            else:
+                full_ans = ans_content
+                
+            if q_num in answers:
+                answers[q_num] += "\n\n" + full_ans
+            else:
+                answers[q_num] = full_ans
+                
+    logger.info(f"Extracted answers for {len(answers)} question numbers.")
+    return answers

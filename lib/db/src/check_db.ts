@@ -1,3 +1,4 @@
+import "./env";
 import { db, pool } from "./index";
 import { papersTable } from "./schema/papers";
 import { questionsTable } from "./schema/questions";

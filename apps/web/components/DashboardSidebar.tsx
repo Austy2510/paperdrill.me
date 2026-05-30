@@ -12,10 +12,11 @@ import {
   BookOpen,
   Clock
 } from "lucide-react";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { UserButton, useUser, useClerk } from "@clerk/nextjs";
 
 export default function DashboardSidebar() {
   const { user, isLoaded, isSignedIn } = useUser();
+  const { openUserProfile } = useClerk();
   const pathname = usePathname();
 
   const navItems = [
@@ -52,7 +53,10 @@ export default function DashboardSidebar() {
       </nav>
 
       <div className="w-full pt-6 border-t flex flex-col gap-2">
-        <button className="flex items-center gap-4 w-full p-3 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">
+        <button 
+          onClick={() => openUserProfile()}
+          className="flex items-center gap-4 w-full p-3 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
           <Settings className="w-5 h-5 shrink-0" />
           <span className="font-medium hidden lg:block">Settings</span>
         </button>

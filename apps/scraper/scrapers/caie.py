@@ -8,7 +8,7 @@ from http_client import get_polite_session, polite_get
 class CAIEScraper(BaseScraper):
     def __init__(self, db_conn_str: str):
         super().__init__(db_conn_str, board="CAIE")
-        # PhysicsAndMathsTutor is very friendly to scrape
+        # PhysicsAndMathsTutor covers all A-Level subjects beautifully
         self.sources = [
             {
                 "url": "https://www.physicsandmathstutor.com/past-papers/a-level-chemistry/cie-paper-4/",
@@ -19,6 +19,21 @@ class CAIEScraper(BaseScraper):
                 "url": "https://www.physicsandmathstutor.com/past-papers/a-level-physics/cie-paper-4/",
                 "subject": "Physics",
                 "paper_number": "4"
+            },
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/a-level-biology/cie-paper-4/",
+                "subject": "Biology",
+                "paper_number": "4"
+            },
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/a-level-maths/cie-paper-1/",
+                "subject": "Mathematics",
+                "paper_number": "1"
+            },
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/a-level-maths/cie-paper-3/",
+                "subject": "Mathematics",
+                "paper_number": "3"
             }
         ]
 
@@ -70,11 +85,15 @@ class CAIEScraper(BaseScraper):
             year_match = re.search(r'(19|20)\d{2}', filename)
             year = int(year_match.group(0)) if year_match else 2023
             
+            # Derive Mark Scheme URL from the QP URL
+            mark_scheme_url = pdf_url.replace('/QP/', '/MS/').replace('QP.pdf', 'MS.pdf').replace('QP-', 'MS-')
+            
             meta = {
                 "subject": item["subject"],
                 "level": "A Level",
                 "year": year,
-                "paper_number": item["paper_number"]
+                "paper_number": item["paper_number"],
+                "mark_scheme_url": mark_scheme_url
             }
             
             success = self.ingest_paper(meta, pdf_url)

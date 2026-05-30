@@ -267,27 +267,24 @@ Available knobs:
 - `scraper/` directory with full Python pipeline (requests, BeautifulSoup4, pdfplumber, pytesseract, **Playwright**)
 - `database.py` — SQLite schema with Postgres-compatible types
 - `sync_to_postgres.py` — generates correct Postgres upsert SQL
-- `tagger.py` — tags questions from existing DB data
-- **Web Dashboard**: Fully functional Next.js App Router setup with Clerk authentication, Neon PostgreSQL, Drizzle ORM, and OpenRouter AI integration.
-
-### Key changes (live scraping fix session & frontend integration)
-1. **CAIE (`caie.py`)**: Added mandatory `subject_code` filter in `_find_pdf_links`. Updated URL builder with PapaCambridge patterns.
-2. **Edexcel (`edexcel.py`)**: Complete rewrite using **PhysicsAndMathsTutor (PMT)** with Playwright-based directory crawling. 
-3. **Dhaka (`dhaka.py`)**: Crawls admissionwar HSC index → extracts embedded exam images from `ibb.co` → converts to PDF using **Pillow**.
+- `tagger.py` — tags quest### Key changes (live scraping fix session, frontend integration & roadmap completion)
+1. **CAIE (`caie.py`)**: Expanded sources dynamically to cover multiple subjects: `Chemistry`, `Physics`, `Biology`, and `Mathematics` across major CIE A-Level papers. Derived `mark_scheme_url` automatically.
+2. **Edexcel (`edexcel.py`)**: Expanded sources dynamically to cover `Chemistry`, `Physics`, `Biology`, and `Mathematics` across major Edexcel A-Level papers. Derived `mark_scheme_url` automatically.
+3. **Mark Scheme Syncing (`base.py` & `segmenter.py`)**: Added native Mark Scheme PDF downloading, text extraction using `pdfplumber`, answer segmentation, and automatic pairing with question papers inside `ingest_paper` before database write.
 4. **Database Migration**: Switched the primary web dashboard database from local SQLite/Azure to a **Neon Serverless Postgres** instance.
-5. **Frontend Routing**: Implemented a persistent `(dashboard)` layout with functional Next.js sidebar links and placeholder pages for Search, Saved, Syllabus, and Timeline.
-6. **AI Tutor**: Configured the OpenRouter API key and backend route to enable the DeepSeek-powered AI Tutor on the dashboard.
-
-7. **AI Tutor Fix**: Refactored the client-side `AITutor.tsx` and server-side chat route (`apps/web/app/api/chat/route.ts`) to correctly align with Vercel's `@ai-sdk/react` v5+ API interface:
+5. **Frontend Settings & Timeline UI**: 
+   - Bound the **Settings** sidebar button directly to trigger the Clerk user profile modal using `openUserProfile()`.
+   - Built a highly premium, interactive vertical **Study Milestones Timeline** (`/timeline`) showcasing exam preparation phases and boards schedule countdowns.
+6. **AI Tutor Fix**: Refactored the client-side `AITutor.tsx` and server-side chat route (`apps/web/app/api/chat/route.ts`) to correctly align with Vercel's `@ai-sdk/react` v5+ API interface:
    - Implemented message extractor `getMessageText` to safely parse streamed `parts` array in client components.
    - Handled text submissions through a unified `handleFormSubmit` and a custom local state `input` variable to invoke `sendMessage({ text: input })`.
    - Prevented all form-submit page reloads by mapping `e?.preventDefault()` to form submissions and the textarea `onKeyDown` Enter key intercept.
    - Fixed model schema mismatch crashes in `streamText` by calling `convertToModelMessages(messages)` inside the backend chat route.
    - Verified functionality end-to-end with an automated Playwright browser test directly on the live website ([www.paperdrill.me](https://www.paperdrill.me)).
+7. **AI Auto-Tagger Script (`tagger.ts`)**: Reconstructed the script to natively use **OpenRouter (DeepSeek-Chat)** via native Node `fetch` and `.env` loading, enabling full-scale auto-tagging of thousands of database questions directly in Neon Postgres without external dependencies.
 
 ### Next steps
-1. **Full live run**: Execute `python main.py run all` to populate the SQLite database.
-2. **Execute Database Sync**: Run the `sync_to_postgres.py` script to push the scraped data into the new Neon Postgres database.
-3. **Improve Bangla numeral segmentation** to handle mid-block splits.
-4. **Flesh out Frontend Pages**: Turn the placeholder pages (Advanced Search, Saved Questions) into fully functional React components interacting with the real database data.
+1. **Full Scrape Run**: Run `python main.py run all` inside `apps/scraper` with high limit to scrape the full multi-subject past papers database.
+2. **Improve Bangla numeral segmentation** if the Dhaka Board scraper is re-enabled in a future phase.
+3. **Flesh out Frontend Pages**: Turn the placeholder pages (Advanced Search, Saved Questions) into fully functional React components interacting with the real database data.
 

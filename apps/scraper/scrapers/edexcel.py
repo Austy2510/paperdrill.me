@@ -18,6 +18,16 @@ class EdexcelScraper(BaseScraper):
                 "url": "https://www.physicsandmathstutor.com/past-papers/a-level-physics/edexcel-paper-1/",
                 "subject": "Physics",
                 "paper_number": "1"
+            },
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/a-level-biology/edexcel-paper-1/",
+                "subject": "Biology",
+                "paper_number": "1"
+            },
+            {
+                "url": "https://www.physicsandmathstutor.com/past-papers/a-level-maths/edexcel-paper-1/",
+                "subject": "Mathematics",
+                "paper_number": "1"
             }
         ]
 
@@ -67,11 +77,15 @@ class EdexcelScraper(BaseScraper):
             year_match = re.search(r'(19|20)\d{2}', filename)
             year = int(year_match.group(0)) if year_match else 2023
             
+            # Derive Mark Scheme URL from the QP URL
+            mark_scheme_url = pdf_url.replace('/QP/', '/MS/').replace('QP', 'MS')
+            
             meta = {
                 "subject": item["subject"],
                 "level": "A Level",
                 "year": year,
-                "paper_number": item["paper_number"]
+                "paper_number": item["paper_number"],
+                "mark_scheme_url": mark_scheme_url
             }
             
             success = self.ingest_paper(meta, pdf_url)

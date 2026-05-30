@@ -43,10 +43,11 @@ class BaseScraper:
         """
         Main flow:
         1. Check if already exists
-        2. Download
-        3. Extract text
-        4. Segment into questions
-        5. Insert to DB
+        2. Download QP
+        3. Extract QP text
+        4. If mark_scheme_url exists, download and extract MS text
+        5. Segment into questions and map MS answers
+        6. Insert to DB
         """
         cursor = self.conn.cursor()
         
@@ -57,29 +58,49 @@ class BaseScraper:
                 logger.debug(f"Paper already exists, skipping: {pdf_url}")
                 return False
                 
-            # Download
+            # Download QP
             pdf_path = self.download_pdf(pdf_url, f"{uuid.uuid4()}.pdf")
             if not pdf_path:
                 return False
                 
-            # Extract
+            # Extract QP text
             full_text = extract_text_from_pdf(pdf_path)
             
-            # Clean up the PDF to save space (since we aren't uploading to S3 right now)
+            # Clean up the QP PDF
             os.remove(pdf_path)
             
             if not full_text.strip():
                 logger.warning(f"No text extracted from {pdf_url}. Skipping DB insert.")
                 return False
                 
-            # Segment
+            # Handle Mark Scheme download & extraction if present
+            mark_scheme_url = paper_meta.get("mark_scheme_url")
+            ms_answers = {}
+            if mark_scheme_url:
+                logger.info(f"Mark Scheme URL provided: {mark_scheme_url}")
+                ms_pdf_path = self.download_pdf(mark_scheme_url, f"{uuid.uuid4()}_ms.pdf")
+                if ms_pdf_path:
+                    ms_text = extract_text_from_pdf(ms_pdf_path)
+                    os.remove(ms_pdf_path)
+                    if ms_text.strip():
+                        from segmenter import segment_ms
+                        ms_answers = segment_ms(ms_text)
+                        logger.info(f"Successfully extracted {len(ms_answers)} answers from MS.")
+            
+            # Segment QP into questions
             questions = segment_paper(full_text)
+            
+            # Pair QP questions with MS answers
+            for q in questions:
+                q_num = q["question_number"]
+                if q_num in ms_answers:
+                    q["answer_text"] = ms_answers[q_num]
             
             # Insert Paper
             paper_id = str(uuid.uuid4())
             insert_paper_q = """
-            INSERT INTO papers (id, board, subject, level, year, paper_number, source_pdf_url)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO papers (id, board, subject, level, year, paper_number, source_pdf_url, mark_scheme_url)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT DO NOTHING
             """
             cursor.execute(insert_paper_q, (
@@ -89,13 +110,14 @@ class BaseScraper:
                 paper_meta.get("level", "Unknown"),
                 paper_meta.get("year", 2000),
                 paper_meta.get("paper_number", "Unknown"),
-                pdf_url
+                pdf_url,
+                mark_scheme_url
             ))
             
             # Insert Questions
             insert_q_query = """
-            INSERT INTO questions (id, paper_id, question_number, question_text, answer_text, board, subject, level, year, paper_number)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO questions (id, paper_id, question_number, question_text, answer_text, board, subject, level, year, paper_number, mark_scheme_url)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             
             for q in questions:
@@ -109,7 +131,8 @@ class BaseScraper:
                     paper_meta.get("subject", "Unknown"),
                     paper_meta.get("level", "Unknown"),
                     paper_meta.get("year", 2000),
-                    paper_meta.get("paper_number", "Unknown")
+                    paper_meta.get("paper_number", "Unknown"),
+                    mark_scheme_url
                 ))
                 
             self.conn.commit()
