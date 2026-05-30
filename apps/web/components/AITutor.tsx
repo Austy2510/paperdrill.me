@@ -56,6 +56,15 @@ export default function AITutor() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleFormSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
+    if (!input.trim()) return;
+    handleSubmit(e);
+    // Reset textarea height to original
+    const textarea = document.querySelector('textarea');
+    if (textarea) textarea.style.height = 'auto';
+  };
+
   const sendQuickPrompt = (prompt: string) => {
     append({ role: 'user', content: prompt });
   };
@@ -205,12 +214,7 @@ export default function AITutor() {
                 {/* Input */}
                 <form
                   id="ai-tutor-form"
-                  onSubmit={(e) => {
-                    handleSubmit(e);
-                    // Reset textarea height to original
-                    const textarea = e.currentTarget.querySelector('textarea');
-                    if (textarea) textarea.style.height = 'auto';
-                  }}
+                  onSubmit={handleFormSubmit}
                   className="p-3 border-t bg-muted/10 shrink-0"
                 >
                   <div className="relative flex items-end gap-2">
@@ -224,8 +228,7 @@ export default function AITutor() {
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
-                          const form = document.getElementById('ai-tutor-form') as HTMLFormElement;
-                          form?.requestSubmit();
+                          handleFormSubmit();
                         }
                       }}
                       placeholder="Ask anything... (Enter to send)"
