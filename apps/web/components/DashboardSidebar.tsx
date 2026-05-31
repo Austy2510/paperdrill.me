@@ -38,9 +38,9 @@ export default function DashboardSidebar() {
   ];
 
   return (
-    <aside className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t lg:static lg:w-64 lg:border-r lg:border-t-0 lg:bg-muted/20 flex flex-row lg:flex-col items-center lg:items-start p-2 lg:p-6 gap-2 lg:gap-8 shrink-0 pb-safe">
-      <Link href="/" className="hidden lg:flex items-center gap-3">
-        <div className="gradient-primary w-10 h-10 rounded-xl flex items-center justify-center shadow-lg">
+    <aside className="fixed bottom-4 left-4 right-4 z-40 glass rounded-3xl lg:rounded-none lg:static lg:w-64 lg:border-r lg:border-t-0 lg:bg-background lg:backdrop-blur-none flex flex-row lg:flex-col items-center lg:items-start p-2 lg:p-6 gap-2 lg:gap-8 shrink-0 pb-safe shadow-premium lg:shadow-none transition-all">
+      <Link href="/" className="hidden lg:flex items-center gap-3 w-full">
+        <div className="gradient-primary w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transform transition-transform hover:scale-105">
           <BookOpen className="text-white w-6 h-6" />
         </div>
         <span className="text-xl font-bold tracking-tight text-gradient">PaperDrill</span>
@@ -53,9 +53,9 @@ export default function DashboardSidebar() {
             <Link 
               key={i} 
               href={item.href}
-              className={`flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:gap-4 w-full p-2 lg:p-3 rounded-xl transition-all ${active ? 'text-primary lg:bg-primary lg:text-primary-foreground shadow-none lg:shadow-lg lg:shadow-primary/20' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+              className={`group flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:gap-4 w-full p-2 lg:p-3 rounded-xl transition-all duration-300 ${active ? 'text-primary lg:bg-primary lg:text-primary-foreground shadow-none lg:shadow-lg lg:shadow-primary/20 scale-105 lg:scale-100' : 'text-muted-foreground hover:bg-muted hover:text-foreground hover:scale-105 lg:hover:scale-100'}`}
             >
-              <item.icon className="w-5 h-5 shrink-0" />
+              <item.icon className={`w-5 h-5 shrink-0 transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110 group-hover:-translate-y-0.5'}`} />
               <span className="text-[10px] lg:text-sm font-medium whitespace-nowrap">{item.label}</span>
             </Link>
           );

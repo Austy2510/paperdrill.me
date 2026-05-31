@@ -97,9 +97,10 @@ export default function RecentPapersFilter({ boards, papers, children }: RecentP
             {filteredPapers.map((p, i) => (
               <motion.div 
                 key={i} 
-                whileHover={{ scale: 1.01 }}
-                className="flex items-center gap-4 p-5 rounded-2xl bg-card border shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer group"
+                whileHover={{ scale: 1.02, y: -4 }}
+                className="flex items-center gap-4 p-5 rounded-2xl glass border shadow-sm hover:shadow-premium hover:border-primary/40 transition-all duration-300 cursor-pointer group relative overflow-hidden"
               >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
                 <div className="w-14 h-14 rounded-2xl bg-secondary flex flex-col items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-inner border border-foreground/5">
                   <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Yr</span>
                   <span className="font-black text-lg leading-none">{p.year % 100}</span>
