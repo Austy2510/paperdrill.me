@@ -6,4 +6,4 @@ pdf2image
 psycopg2-binary
 loguru
 python-dotenv
-playwright
+playwright==1.40.0
