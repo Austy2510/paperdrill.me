@@ -1,79 +1,90 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
+  Home, 
   Search, 
-  History, 
-  TrendingUp, 
-  LayoutGrid, 
-  Settings,
-  BookOpen,
-  Clock,
-  User
+  Bookmark, 
+  BookOpen, 
+  BookMarked,
+  Play
 } from "lucide-react";
-import GoogleAd from "./GoogleAd";
+import { useAiUnlock } from "@/lib/store";
+import { AiUnlockModal } from "./AiUnlockModal";
+
+const NAV_ITEMS = [
+  { label: "Overview", icon: Home, href: "/" },
+  { label: "Search", icon: Search, href: "/search" },
+  { label: "Saved", icon: Bookmark, href: "/saved" },
+  { label: "Syllabus", icon: BookOpen, href: "/syllabus" },
+];
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
-  const [deviceId, setDeviceId] = useState<string>("Loading...");
-
-  useEffect(() => {
-    // Just a fun way to show the user's local ID
-    const match = document.cookie.match(/(?:^|; )deviceId=([^;]+)/);
-    if (match) {
-      setDeviceId(match[1].substring(0, 8) + "...");
-    } else {
-      setDeviceId("Anonymous");
-    }
-  }, []);
-
-  const navItems = [
-    { icon: LayoutGrid, label: "Overview", href: "/" },
-    { icon: Search, label: "Search", href: "/search" },
-    { icon: History, label: "Saved", href: "/saved" },
-    { icon: TrendingUp, label: "Syllabus", href: "/syllabus" },
-    { icon: Clock, label: "Timeline", href: "/timeline" },
-  ];
+  const { isUnlocked, formatTimeLeft, unlockAi } = useAiUnlock();
+  const [showModal, setShowModal] = useState(false);
 
   return (
-    <aside className="fixed bottom-4 left-4 right-4 z-40 glass rounded-3xl lg:rounded-none lg:static lg:w-64 lg:border-r lg:border-t-0 lg:bg-background lg:backdrop-blur-none flex flex-row lg:flex-col items-center lg:items-start p-2 lg:p-6 gap-2 lg:gap-8 shrink-0 pb-safe shadow-premium lg:shadow-none transition-all">
-      <Link href="/" className="hidden lg:flex items-center gap-3 w-full">
-        <div className="gradient-primary w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transform transition-transform hover:scale-105">
-          <BookOpen className="text-white w-6 h-6" />
-        </div>
-        <span className="text-xl font-bold tracking-tight text-gradient">PaperDrill</span>
-      </Link>
-
-      <nav className="flex-1 w-full flex flex-row lg:flex-col justify-around lg:justify-start gap-1 lg:gap-2">
-        {navItems.map((item, i) => {
-          const active = pathname === item.href;
-          return (
-            <Link 
-              key={i} 
-              href={item.href}
-              className={`group flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:gap-4 w-full p-2 lg:p-3 rounded-xl transition-all duration-300 ${active ? 'text-primary lg:bg-primary lg:text-primary-foreground shadow-none lg:shadow-lg lg:shadow-primary/20 scale-105 lg:scale-100' : 'text-muted-foreground hover:bg-muted hover:text-foreground hover:scale-105 lg:hover:scale-100'}`}
-            >
-              <item.icon className={`w-5 h-5 shrink-0 transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110 group-hover:-translate-y-0.5'}`} />
-              <span className="text-[10px] lg:text-sm font-medium whitespace-nowrap">{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="hidden lg:flex w-full pt-6 border-t flex-col gap-4">
-        <GoogleAd slot="sidebar-bottom-ad" className="min-h-[100px] w-full" />
-        <div className="flex items-center gap-4 w-full p-3 rounded-xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/10">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-            <User className="w-4 h-4" />
+    <>
+      <aside className="w-64 bg-card/80 backdrop-blur-md border-r border-border flex-col pt-8 pb-6 px-4 z-10 hidden md:flex flex-shrink-0 h-screen sticky top-0">
+        <Link href="/" className="flex items-center gap-3 px-2 mb-12">
+          <div className="w-8 h-8 rounded bg-primary/10 border border-primary/30 flex items-center justify-center">
+            <BookMarked className="w-5 h-5 text-primary" />
           </div>
-          <div className="overflow-hidden">
-            <p className="text-[11px] font-bold truncate">Student ID:</p>
-            <p className="text-[9px] text-muted-foreground truncate">{deviceId}</p>
+          <span className="font-playfair text-xl font-bold tracking-wide text-foreground">PaperDrill</span>
+        </Link>
+
+        <nav className="flex-1 space-y-2">
+          {NAV_ITEMS.map((item) => {
+            const active = pathname === item.href;
+            const Icon = item.icon;
+            return (
+              <Link 
+                key={item.label} 
+                href={item.href} 
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                  active 
+                    ? "bg-primary/10 text-primary font-medium" 
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                }`} 
+                data-testid={`nav-${item.label.toLowerCase()}`}
+              >
+                <Icon className={`w-5 h-5 ${active ? "text-primary" : "opacity-70"}`} />
+                <span className="font-inter text-sm">{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* AI Access Status */}
+        <div className="px-3 mt-auto">
+          <div className="p-4 rounded-xl bg-gradient-to-b from-card to-background border border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <div className={`w-2 h-2 rounded-full ${isUnlocked ? "bg-primary" : "bg-muted-foreground"}`} />
+              <span className="font-inter text-xs font-semibold text-foreground/80">
+                {isUnlocked ? `AI Unlocked · ${formatTimeLeft()}` : "AI Answers Locked"}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground font-inter mb-3">
+              {isUnlocked ? "You have full AI access for this session." : "Watch a short ad to unlock AI model answers for 2 hours. Free forever."}
+            </p>
+            {!isUnlocked && (
+              <button
+                onClick={() => setShowModal(true)}
+                className="w-full py-2 flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary font-medium rounded text-xs transition-colors cursor-pointer"
+                data-testid="button-sidebar-unlock-ai"
+              >
+                <Play className="w-3 h-3" fill="currentColor" />
+                Watch Ad · Unlock 2hrs
+              </button>
+            )}
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+
+      <AiUnlockModal isOpen={showModal} onClose={() => setShowModal(false)} onUnlock={unlockAi} />
+    </>
   );
 }

@@ -36,9 +36,17 @@ export default function GoogleAd({
   return (
     <div className={`overflow-hidden rounded-xl border bg-muted/10 flex items-center justify-center text-center ${className}`}>
       {process.env.NODE_ENV === "development" ? (
-        <div className="p-4 text-xs text-muted-foreground w-full h-full flex flex-col items-center justify-center">
-          <span className="font-bold">Google Ad</span>
-          <span>Slot: {slot}</span>
+        <div className="w-full h-full bg-card/50 border border-border/50 flex flex-col items-center justify-center p-4 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80 pointer-events-none" />
+          <div className="flex items-center gap-3 z-10">
+            <div className="w-10 h-10 rounded bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0">
+              <span className="text-primary text-lg font-bold">Ad</span>
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-foreground font-inter">Advertisement</p>
+              <p className="text-xs text-muted-foreground font-inter">Slot: {slot}</p>
+            </div>
+          </div>
         </div>
       ) : (
         <ins

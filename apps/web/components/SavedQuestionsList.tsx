@@ -4,6 +4,7 @@ import React, { useState, useTransition } from "react";
 import { Bookmark, Trash2, BookOpen, Zap, Search, History } from "lucide-react";
 import Link from "next/link";
 import SaveBookmarkButton from "@/components/SaveBookmarkButton";
+import { QuestionCard } from "@/components/QuestionCard";
 import { clearAllSavedQuestions } from "@/app/actions";
 
 interface SavedQuestion {
@@ -144,60 +145,12 @@ export default function SavedQuestionsList({ initialQuestions }: SavedQuestionsL
           {/* Questions list */}
           <div className="flex flex-col gap-4">
             {filtered.map((question) => (
-              <div
-                key={question.id}
-                className="bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all"
-              >
-                {/* Card header */}
-                <div className="px-6 pt-5 pb-4 flex items-start justify-between gap-4">
-                  <div className="flex gap-2 flex-wrap items-center">
-                    <span className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-bold rounded-lg">
-                      {question.board} · {question.year}
-                    </span>
-                    <span className={`px-2.5 py-1 text-xs font-medium rounded-lg ${SUBJECT_COLORS[question.subject] ?? "bg-muted text-muted-foreground"}`}>
-                      {question.subject}
-                    </span>
-                    {question.topic && (
-                      <span className="px-2.5 py-1 bg-muted text-muted-foreground text-xs font-medium rounded-lg">
-                        {question.topic}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-1 rounded-lg">
-                      Q{question.questionNumber}
-                    </span>
-                    <div onClick={() => handleRemoveLocal(question.id)}>
-                      <SaveBookmarkButton questionId={question.id} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Question text */}
-                <div className="px-6 pb-4">
-                  <div className="flex gap-2">
-                    <BookOpen className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                    <p className="text-sm font-medium leading-relaxed whitespace-pre-line">
-                      {question.questionText}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Answer - collapsible */}
-                <details className="group/details">
-                  <summary className="px-6 pb-4 cursor-pointer list-none">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-primary hover:text-primary/80 transition-colors">
-                      <Zap className="w-3.5 h-3.5" />
-                      <span>Show Model Answer</span>
-                      <span className="ml-auto group-open/details:rotate-180 transition-transform">▼</span>
-                    </div>
-                  </summary>
-                  <div className="px-6 pb-5 pt-2 border-t bg-muted/20">
-                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line font-mono">
-                      {question.answerText}
-                    </p>
-                  </div>
-                </details>
+              <div key={question.id} onClick={() => handleRemoveLocal(question.id)} className="relative">
+                 {/* 
+                   We wrap it to catch the click on the bookmark button.
+                   In a real app, we might want to pass an onUnsave callback to QuestionCard.
+                 */}
+                 <QuestionCard question={question} />
               </div>
             ))}
           </div>
