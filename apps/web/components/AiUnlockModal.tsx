@@ -29,7 +29,8 @@ export function AiUnlockModal({ isOpen, onClose, onUnlock }: AiUnlockModalProps)
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [isOpen, timeLeft, onUnlock, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, timeLeft]);
 
   if (!isOpen) return null;
 

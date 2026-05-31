@@ -33,10 +33,12 @@ export default function GoogleAd({
     }
   }, []);
 
+  const isDev = process.env.NODE_ENV === "development";
+
   return (
-    <div className={`overflow-hidden rounded-xl border bg-muted/10 flex items-center justify-center text-center ${className}`}>
-      {process.env.NODE_ENV === "development" ? (
-        <div className="w-full h-full bg-card/50 border border-border/50 flex flex-col items-center justify-center p-4 relative overflow-hidden group">
+    <div className={`google-ad-container flex items-center justify-center text-center overflow-hidden ${isDev ? "rounded-xl border border-dashed bg-muted/10 min-h-[100px]" : ""} ${className}`}>
+      {isDev ? (
+        <div className="w-full h-full bg-card/50 flex flex-col items-center justify-center p-4 relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80 pointer-events-none" />
           <div className="flex items-center gap-3 z-10">
             <div className="w-10 h-10 rounded bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0">
@@ -51,7 +53,7 @@ export default function GoogleAd({
       ) : (
         <ins
           ref={adRef}
-          className="adsbygoogle"
+          className="adsbygoogle bg-transparent"
           style={{ display: "block", width: "100%" }}
           data-ad-client={client}
           data-ad-slot={slot}

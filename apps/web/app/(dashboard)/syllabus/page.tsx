@@ -151,9 +151,9 @@ export default async function SyllabusMapPage() {
                     <span className={`text-xs font-bold ${colors.text}`}>{pct}%</span>
                   </div>
                 </div>
-                <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden relative">
                   <div
-                    className={`h-full rounded-full ${colors.dot} transition-all`}
+                    className={`absolute top-0 left-0 h-full rounded-full ${colors.dot} transition-all`}
                     style={{ width: `${pct}%` }}
                   />
                 </div>

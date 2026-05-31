@@ -105,7 +105,7 @@ export default function HomeClient({ recentQuestions }: HomeClientProps) {
         </div>
       </div>
 
-      <GoogleAd slot="home-top-ad" className="w-full min-h-[100px] my-10 border-dashed border-2" />
+      <GoogleAd slot="home-top-ad" className="w-full my-10" />
 
       {/* Question Cards (Recent Extracts) */}
       <div>
@@ -124,7 +124,7 @@ export default function HomeClient({ recentQuestions }: HomeClientProps) {
         )}
       </div>
 
-      <GoogleAd slot="home-bottom-ad" className="w-full min-h-[100px] my-10 border-dashed border-2" />
+      <GoogleAd slot="home-bottom-ad" className="w-full my-10" />
 
       {/* Floating AI Button */}
       <button className="fixed bottom-24 md:bottom-8 right-8 z-50 bg-amber-500 text-black p-4 rounded-full shadow-[0_10px_40px_rgba(245,158,11,0.3)] hover:scale-105 hover:bg-amber-600 transition-all flex items-center gap-3 group cursor-pointer">

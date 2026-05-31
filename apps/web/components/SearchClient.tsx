@@ -79,17 +79,22 @@ export default function SearchClient({ initialQuery, initialBoard, results }: Se
         <span>Found {results.length} result{results.length !== 1 ? 's' : ''}</span>
       </div>
 
-      <GoogleAd slot="search-top-ad" className="w-full min-h-[100px] my-6 border-dashed border-2" />
+      <GoogleAd slot="search-top-ad" className="w-full my-6" />
 
-      {results.length > 0 ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-20 animate-pulse">
+          <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mb-4" />
+          <p className="text-muted-foreground font-inter">Searching through thousands of past papers...</p>
+        </div>
+      ) : results.length > 0 ? (
         <div className="flex flex-col gap-6">
-          {results.map((q, i) => (
-            <div key={q.id}>
+          {results.map((q, index) => (
+            <React.Fragment key={q.id}>
               <QuestionCard question={q} />
-              {(i + 1) % 5 === 0 && (
-                <GoogleAd slot="search-inline-ad" className="w-full min-h-[100px] my-6 border-dashed border-2" />
+              {index === 2 && (
+                <GoogleAd slot="search-inline-ad" className="w-full my-6" />
               )}
-            </div>
+            </React.Fragment>
           ))}
         </div>
       ) : (

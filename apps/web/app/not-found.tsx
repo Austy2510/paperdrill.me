@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Search, Home, ArrowLeft } from "lucide-react";
+import { Search, Home } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

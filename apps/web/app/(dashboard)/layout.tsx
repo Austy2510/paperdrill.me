@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, Bell } from "lucide-react";
+import { Bell } from "lucide-react";
 import AITutor from "@/components/AITutor";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import HeaderSearch from "@/components/HeaderSearch";
