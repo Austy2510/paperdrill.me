@@ -10,8 +10,8 @@ async function main() {
   try {
     const papersCount = await db.select({ val: count() }).from(papersTable);
     console.log(`- Papers count: ${papersCount[0]?.val}`);
-  } catch (err) {
-    console.log("- Error reading papers table (might not exist):", err.message);
+  } catch (err: any) {
+    console.log("- Error reading papers table (might not exist):", err?.message || err);
   }
 
   try {
@@ -25,8 +25,8 @@ async function main() {
         console.log(`  [${q.board}] ${q.subject} (${q.year}) Q${q.questionNumber} Topic: "${q.topic}" Difficulty: "${q.difficulty}"`);
       });
     }
-  } catch (err) {
-    console.log("- Error reading questions table (might not exist):", err.message);
+  } catch (err: any) {
+    console.log("- Error reading questions table (might not exist):", err?.message || err);
   }
 
   await pool.end();
