@@ -289,6 +289,7 @@ Available knobs:
 10. **Telemetry Logging**: Created a generic server action `logTelemetry` hooked up to a new `telemetry` Postgres table to track page views, app initializations, and detailed search queries (`q` parameter).
 11. **Mobile-first Sidebar Refactor**: Converted the desktop-only Sidebar into a responsive component that acts as a sleek bottom navigation bar on mobile devices.
 12. **SEO Rankings**: Added comprehensive metadata, keywords, and OpenGraph configurations to `layout.tsx` to ensure high ranking for CAIE, Edexcel, and Dhaka Board queries.
+13. **Bug Fixes & Type Safety**: Addressed user-reported UI bugs (such as AQA tab removal). Fixed critical TypeScript compilation errors in `SavedQuestionsList`, `QuestionCard`, and `SearchClient` that crashed Next.js rendering. Fixed `@ai-sdk/react` compatibility in `AITutor`, and synchronized the AI unlock timer messaging to a consistent 24 hours globally.
 
 ### Next steps
 1. **Full Scrape Run**: Run `python main.py run all` inside `apps/scraper` with high limit to scrape the full multi-subject past papers database.
