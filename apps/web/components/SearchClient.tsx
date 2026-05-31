@@ -6,7 +6,7 @@ import { Search as SearchIcon } from "lucide-react";
 import { QuestionCard } from "@/components/QuestionCard";
 import GoogleAd from "@/components/GoogleAd";
 
-const BOARDS = ["All Boards", "CAIE", "Edexcel", "AQA", "IB", "Dhaka"];
+const BOARDS = ["All Boards", "CAIE", "Edexcel", "IB", "Dhaka"];
 
 interface SearchClientProps {
   initialQuery: string;

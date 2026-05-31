@@ -10,7 +10,7 @@ export default function SEOFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="hidden lg:block w-full border-t bg-muted/30 mt-auto">
+    <footer className="w-full border-t bg-muted/30 mt-auto pb-24 md:pb-0">
       <div className="max-w-7xl mx-auto px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand Column */}

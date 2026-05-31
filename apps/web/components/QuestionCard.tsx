@@ -5,6 +5,8 @@ import { Lock, Play, Sparkles, Bookmark, FlaskConical, Atom, Calculator, Divide,
 import { useSavedQuestions, useAiUnlock } from "@/lib/store";
 import { AiUnlockModal } from "./AiUnlockModal";
 import SaveBookmarkButton from "./SaveBookmarkButton";
+import "katex/dist/katex.min.css";
+import Latex from "react-latex-next";
 
 const SUBJECT_ICONS: Record<string, any> = {
   "Chemistry": FlaskConical,
@@ -70,9 +72,9 @@ export function QuestionCard({ question }: QuestionCardProps) {
       
       <div className="p-6 flex-1 bg-background relative">
         <div className="absolute left-6 top-0 bottom-0 w-px bg-primary/20" />
-        <p className="font-playfair text-foreground/80 text-base leading-relaxed pl-4 relative z-10 group-hover:text-foreground transition-colors whitespace-pre-line">
-          "{qText}"
-        </p>
+        <div className="font-playfair text-foreground/80 text-base leading-relaxed pl-4 relative z-10 group-hover:text-foreground transition-colors whitespace-pre-line">
+          <Latex strict={false}>{qText}</Latex>
+        </div>
 
         {showAnswer && isUnlocked && (
           <div className="mt-6 pl-4 relative z-10">
@@ -81,9 +83,9 @@ export function QuestionCard({ question }: QuestionCardProps) {
                 <Sparkles className="w-4 h-4" />
                 <span className="font-medium text-sm font-inter">AI Model Answer</span>
               </div>
-              <p className="text-muted-foreground font-mono text-sm leading-relaxed whitespace-pre-line">
-                {aText}
-              </p>
+              <div className="text-muted-foreground font-mono text-sm leading-relaxed whitespace-pre-line overflow-x-auto">
+                <Latex strict={false}>{aText}</Latex>
+              </div>
             </div>
           </div>
         )}

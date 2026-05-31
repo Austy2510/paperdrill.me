@@ -38,6 +38,22 @@ def segment_paper(full_text: str) -> List[Dict[str, Any]]:
             q_num = str(i)
             q_text = segment
             
+        # Basic Heuristics to filter out garbage and boilerplate
+        if len(q_text) < 15:
+            continue
+            
+        blocklist = [
+            "copyright", 
+            "all rights reserved", 
+            "uccles", 
+            "cambridge assessment", 
+            "do not write", 
+            "turn over",
+            "blank page"
+        ]
+        if any(b in q_text.lower() for b in blocklist):
+            continue
+            
         questions.append({
             "question_number": q_num,
             "question_text": q_text,

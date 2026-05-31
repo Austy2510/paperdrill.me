@@ -6,7 +6,7 @@ import { Sparkles, ChevronRight, Search as SearchIcon, Bookmark, MessageSquare, 
 import { QuestionCard } from "@/components/QuestionCard";
 import GoogleAd from "@/components/GoogleAd";
 
-const BOARDS = ["All Boards", "CAIE", "Edexcel", "AQA", "IB", "Dhaka"];
+const BOARDS = ["All Boards", "CAIE", "Edexcel", "IB", "Dhaka"];
 const TOPICS = [
   "Organic Mechanisms", "Periodic Trends", "Differentiation",
   "Genetic Inheritance", "Electrolysis", "Newton's Laws",

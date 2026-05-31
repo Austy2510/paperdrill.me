@@ -68,7 +68,7 @@ export default function DashboardSidebar() {
               </span>
             </div>
             <p className="text-xs text-muted-foreground font-inter mb-3">
-              {isUnlocked ? "You have full AI access for this session." : "Watch a short ad to unlock AI model answers for 2 hours. Free forever."}
+              {isUnlocked ? "You have full AI access for this session. It will reset after 24 hours." : "Watch a short ad to unlock AI model answers for 24 hours. Free forever."}
             </p>
             {!isUnlocked && (
               <button

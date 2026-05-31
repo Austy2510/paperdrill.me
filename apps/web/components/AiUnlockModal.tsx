@@ -49,7 +49,9 @@ export function AiUnlockModal({ isOpen, onClose, onUnlock }: AiUnlockModalProps)
             <Timer className="w-8 h-8 text-primary animate-pulse" />
           </div>
           <h2 className="font-playfair text-2xl font-bold text-foreground mb-2">Ad playing...</h2>
-          <p className="text-muted-foreground font-inter mb-8">Unlocking 2 hours of AI answers</p>
+          <p className="text-sm text-muted-foreground font-inter mb-6">
+            PaperDrill is free. Support us by watching a short video ad to unlock AI-powered model answers and step-by-step solutions for the next 24 hours!
+          </p>
           
           <div className="text-4xl font-bold font-inter text-primary">
             {timeLeft}s

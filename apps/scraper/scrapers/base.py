@@ -136,11 +136,26 @@ class BaseScraper:
             
             # Insert Questions
             insert_q_query = """
-            INSERT INTO questions (id, paper_id, question_number, question_text, answer_text, board, subject, level, year, paper_number, mark_scheme_url)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO questions (id, paper_id, question_number, question_text, answer_text, board, subject, level, year, paper_number, mark_scheme_url, topic)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             
+            # Basic fallback topics map
+            subject_to_topic = {
+                "Chemistry": "General Chemistry",
+                "Physics": "General Physics",
+                "Biology": "General Biology",
+                "Mathematics": "General Mathematics",
+                "Economics": "General Economics",
+                "Computer Science": "Programming & Theory"
+            }
+            
             for q in questions:
+                # Use assigned topic if present, otherwise fallback based on subject
+                topic = q.get("topic_tag")
+                if not topic or topic == "Uncategorized":
+                    topic = subject_to_topic.get(paper_meta.get("subject"), "General Studies")
+                    
                 cursor.execute(insert_q_query, (
                     str(uuid.uuid4()),
                     paper_id,
@@ -152,7 +167,8 @@ class BaseScraper:
                     paper_meta.get("level", "Unknown"),
                     paper_meta.get("year", 2000),
                     paper_meta.get("paper_number", "Unknown"),
-                    mark_scheme_url
+                    mark_scheme_url,
+                    topic
                 ))
                 
             self.conn.commit()

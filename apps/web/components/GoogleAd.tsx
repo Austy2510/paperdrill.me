@@ -11,7 +11,7 @@ interface GoogleAdProps {
 }
 
 export default function GoogleAd({ 
-  client = "ca-pub-XXXXXXXXXXXXXXXX", 
+  client = "ca-pub-6392725786527871", 
   slot, 
   format = "auto", 
   responsive = true,

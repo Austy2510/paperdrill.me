@@ -83,6 +83,22 @@ export default function SavedQuestionsList({ initialQuestions }: SavedQuestionsL
         )}
       </div>
 
+      {/* Sign-in prompt banner */}
+      <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h3 className="font-semibold text-foreground">Sign in to save permanently</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Create an account to sync your saved questions and AI unlock status across all your devices.
+          </p>
+        </div>
+        <button 
+          disabled
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-xl font-medium text-sm whitespace-nowrap opacity-50 cursor-not-allowed"
+        >
+          Sign In (Coming Soon)
+        </button>
+      </div>
+
       {saved.length === 0 ? (
         /* Empty state */
         <div className="flex flex-col items-center justify-center flex-1 min-h-[50vh] gap-6">

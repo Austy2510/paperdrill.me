@@ -28,7 +28,6 @@ export default function DashboardLayout({
             <ThemeToggle />
             <button className="p-2.5 rounded-xl bg-card border border-border shadow-sm hover:bg-muted transition-colors relative cursor-pointer">
               <Bell className="w-5 h-5 text-foreground" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-background"></span>
             </button>
           </div>
         </header>
