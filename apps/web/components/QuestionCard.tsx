@@ -28,7 +28,7 @@ interface QuestionCardProps {
     answerText?: string;
     marks?: number | null;
     topic?: string | null;
-    questionNumber?: number | null;
+    questionNumber?: string | number | null;
   };
 }
 
@@ -112,7 +112,7 @@ export function QuestionCard({ question }: QuestionCardProps) {
             data-testid={`button-unlock-ai-${question.id}`}
           >
             <Lock className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
-            <span>Watch Ad · Unlock 2hrs AI</span>
+            <span>Watch Ad · Unlock 24hrs AI</span>
             <Play className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors" fill="currentColor" />
           </button>
         )}

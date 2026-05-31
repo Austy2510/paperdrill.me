@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search as SearchIcon } from "lucide-react";
 import { QuestionCard } from "@/components/QuestionCard";
@@ -81,12 +81,7 @@ export default function SearchClient({ initialQuery, initialBoard, results }: Se
 
       <GoogleAd slot="search-top-ad" className="w-full my-6" />
 
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-          <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mb-4" />
-          <p className="text-muted-foreground font-inter">Searching through thousands of past papers...</p>
-        </div>
-      ) : results.length > 0 ? (
+      {results.length > 0 ? (
         <div className="flex flex-col gap-6">
           {results.map((q, index) => (
             <React.Fragment key={q.id}>

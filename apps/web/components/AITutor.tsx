@@ -42,9 +42,7 @@ export default function AITutor() {
     status,
     setMessages,
     error,
-  } = useChat({
-    api: '/api/chat',
-  });
+  } = useChat({});
   const [input, setInput] = useState('');
   const isLoading = status === 'submitted' || status === 'streaming';
 

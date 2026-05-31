@@ -77,7 +77,7 @@ export default function DashboardSidebar() {
                 data-testid="button-sidebar-unlock-ai"
               >
                 <Play className="w-3 h-3" fill="currentColor" />
-                Watch Ad · Unlock 2hrs
+                Watch Ad · Unlock 24hrs
               </button>
             )}
           </div>

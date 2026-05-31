@@ -9,9 +9,9 @@ interface SaveBookmarkButtonProps {
   questionText?: string;
   board?: string;
   subject?: string;
-  year?: number;
+  year?: string | number;
   topic?: string | null;
-  questionNumber?: string;
+  questionNumber?: string | number | null;
   answerText?: string;
 }
 

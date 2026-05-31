@@ -9,7 +9,7 @@ import { clearAllSavedQuestions } from "@/app/actions";
 
 interface SavedQuestion {
   id: string;
-  questionNumber: string;
+  questionNumber: string | number | null;
   questionText: string;
   answerText: string;
   board: string;
