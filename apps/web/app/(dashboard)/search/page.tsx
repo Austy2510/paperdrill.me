@@ -1,25 +1,37 @@
 import React from "react";
 import { Search, BookOpen, Zap, Filter } from "lucide-react";
 import { db, questionsTable } from "@workspace/db";
-import { ilike, or, desc, eq } from "drizzle-orm";
+import { ilike, or, and, desc, eq } from "drizzle-orm";
 import SaveBookmarkButton from "@/components/SaveBookmarkButton";
 import { logTelemetry } from "@/app/actions";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Search Past Paper Questions — CAIE, Edexcel, IGCSE Topics",
-  description:
-    "Search thousands of CAIE, Edexcel and IGCSE past paper questions by topic. Find Chemistry, Physics, Mathematics and Biology questions with instant model answers.",
-  alternates: { canonical: "https://www.paperdrill.me/search" },
-  openGraph: {
-    title: "Search Past Paper Questions by Topic | PaperDrill",
-    description:
-      "Search thousands of past paper questions across Chemistry, Physics, Mathematics and Biology. Filter by board, level and topic.",
-    url: "https://www.paperdrill.me/search",
-  },
-};
 interface SearchPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const q = typeof params.q === 'string' ? params.q : '';
+  const subject = typeof params.subject === 'string' ? params.subject : '';
+  
+  let title = "Search Past Paper Questions — CAIE, Edexcel, IGCSE Topics";
+  if (q) {
+    title = `Search results for "${q}" | PaperDrill`;
+  } else if (subject) {
+    title = `${subject} Past Paper Questions | PaperDrill`;
+  }
+
+  return {
+    title,
+    description: "Search thousands of CAIE, Edexcel and IGCSE past paper questions by topic. Find Chemistry, Physics, Mathematics and Biology questions with instant model answers.",
+    alternates: { canonical: "https://www.paperdrill.me/search" },
+    openGraph: {
+      title,
+      description: "Search thousands of past paper questions across Chemistry, Physics, Mathematics and Biology. Filter by board, level and topic.",
+      url: "https://www.paperdrill.me/search",
+    },
+  };
 }
 
 const SUBJECT_COLORS: Record<string, string> = {
@@ -43,30 +55,55 @@ export default async function AdvancedSearchPage({ searchParams }: SearchPagePro
 
   let results: typeof questionsTable.$inferSelect[] = [];
 
-  if (q && q.trim() !== "") {
-    const searchTerm = `%${q}%`;
-    const conditions = [
-      or(
-        ilike(questionsTable.questionText, searchTerm),
-        ilike(questionsTable.topic, searchTerm),
-        ilike(questionsTable.subject, searchTerm),
-        ilike(questionsTable.answerText, searchTerm),
-      ),
-    ];
+  const hasQuery = q && q.trim() !== "";
+  const hasFilters = subject || board;
+  const isSearchActive = hasQuery || hasFilters;
 
-    results = await db
-      .select()
-      .from(questionsTable)
-      .where(or(...conditions))
-      .orderBy(desc(questionsTable.year))
-      .limit(30);
+  if (isSearchActive) {
+    const conditions = [];
+    
+    if (hasQuery) {
+      const searchTerm = `%${q}%`;
+      conditions.push(
+        or(
+          ilike(questionsTable.questionText, searchTerm),
+          ilike(questionsTable.topic, searchTerm),
+          ilike(questionsTable.subject, searchTerm),
+          ilike(questionsTable.answerText, searchTerm),
+        )
+      );
+    }
+    
+    if (subject) {
+      conditions.push(eq(questionsTable.subject, subject));
+    }
+    
+    if (board) {
+      conditions.push(eq(questionsTable.board, board));
+    }
 
-    // Apply client filters
-    if (subject) results = results.filter((r) => r.subject === subject);
-    if (board) results = results.filter((r) => r.board === board);
+    try {
+      let query = db
+        .select()
+        .from(questionsTable)
+        .$dynamic();
+        
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+      
+      results = await query
+        .orderBy(desc(questionsTable.year))
+        .limit(30);
+    } catch (e) {
+      console.error("Search query failed:", e);
+      throw new Error("Failed to search the database. Please try again.");
+    }
 
     // Log the search
-    logTelemetry("search", q);
+    if (hasQuery) {
+      logTelemetry("search", q as string);
+    }
   }
 
   const subjects = [...new Set(results.map((r) => r.subject))];
@@ -74,7 +111,7 @@ export default async function AdvancedSearchPage({ searchParams }: SearchPagePro
 
   return (
     <div className="p-6 lg:p-8 flex flex-col gap-6 max-w-7xl mx-auto w-full min-h-[60vh]">
-      {!q && (
+      {!isSearchActive && (
         <div className="flex flex-col items-center justify-center flex-1 w-full mt-20 gap-8">
           <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center shadow-lg">
             <Search className="w-10 h-10 text-white" />
@@ -85,6 +122,25 @@ export default async function AdvancedSearchPage({ searchParams }: SearchPagePro
               Search across thousands of past paper questions from CAIE, Edexcel, AQA, IB, and more.
             </p>
           </div>
+          
+          <form action="/search" method="GET" role="search" className="w-full max-w-2xl relative flex items-center">
+            <Search className="w-5 h-5 absolute left-4 text-muted-foreground" />
+            <input 
+              type="search" 
+              name="q"
+              id="search-main"
+              aria-label="Search past paper questions"
+              placeholder="Search concepts, question types, or topics..." 
+              className="w-full pl-12 pr-32 py-4 bg-background border rounded-2xl shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+            />
+            <button 
+              type="submit"
+              aria-label="Submit search"
+              className="absolute right-2 px-6 py-2 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
+            >
+              SEARCH
+            </button>
+          </form>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-2xl">
             {["algebra", "photosynthesis", "electrolysis", "kinematics"].map((term) => (
               <a
@@ -99,7 +155,7 @@ export default async function AdvancedSearchPage({ searchParams }: SearchPagePro
         </div>
       )}
 
-      {q && (
+      {isSearchActive && (
         <div className="w-full flex flex-col gap-6">
           {/* Results header */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-muted/30 p-4 rounded-2xl border">
@@ -109,8 +165,10 @@ export default async function AdvancedSearchPage({ searchParams }: SearchPagePro
             <div className="flex-1">
               <h1 className="text-2xl font-bold">Search Results</h1>
               <p className="text-sm text-muted-foreground">
-                Found <span className="font-bold text-foreground">{results.length}</span> results for{" "}
-                <span className="font-bold text-primary">"{q}"</span>
+                Found <span className="font-bold text-foreground">{results.length}</span> results
+                {hasQuery && (
+                  <> for <span className="font-bold text-primary">"{q}"</span></>
+                )}
               </p>
             </div>
             {results.length > 0 && (
@@ -217,7 +275,7 @@ import GoogleAd from "@/components/GoogleAd";
             ) : (
               <div className="text-center p-16 bg-muted/20 border border-dashed rounded-2xl">
                 <Search className="w-10 h-10 text-muted-foreground/40 mx-auto mb-4" />
-                <p className="text-muted-foreground font-medium">No questions found matching "{q}"</p>
+                <p className="text-muted-foreground font-medium">No questions found matching your criteria</p>
                 <p className="text-sm text-muted-foreground mt-1">Try different keywords or check spelling</p>
               </div>
             )}

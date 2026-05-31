@@ -10,17 +10,17 @@ export const metadata: Metadata = {
   title: "Free Past Papers & AI Answers — CAIE, Edexcel, IGCSE | PaperDrill",
   description:
     "Browse thousands of free CAIE, Edexcel & Dhaka Board past papers. Search A Level, O Level and IGCSE questions by topic, get instant AI model answers, and boost your exam grades.",
-  alternates: { canonical: "https://www.paperdrill.me" },
+  alternates: { canonical: "https://www.paperdrill.me/" },
   openGraph: {
     title: "Free Past Papers & AI Answers — CAIE, Edexcel, IGCSE",
     description:
       "Browse thousands of free CAIE, Edexcel & Dhaka Board past papers with instant AI answers.",
-    url: "https://www.paperdrill.me",
+    url: "https://www.paperdrill.me/",
   },
 };
 
 // Make the page dynamic so it re-fetches or uses revalidate
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function Dashboard() {
   // Fetch Boards

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: "PaperDrill — Free Past Papers & AI Answers | CAIE, Edexcel, IGCSE",
-    template: "%s | PaperDrill",
+    template: "%s",
   },
   description: SITE_DESCRIPTION,
   keywords: [
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: SITE_URL,
+    url: `${SITE_URL}/`,
     siteName: SITE_NAME,
     title: "PaperDrill — Free Past Papers & AI Answers | CAIE, Edexcel, IGCSE",
     description: SITE_DESCRIPTION,
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: SITE_URL,
+    canonical: `${SITE_URL}/`,
   },
   category: "education",
   verification: {
@@ -140,7 +140,12 @@ function WebsiteJsonLd() {
           width: 1200,
           height: 630,
         },
-        sameAs: [],
+        sameAs: [
+          "https://twitter.com/paperdrill",
+          "https://www.linkedin.com/company/paperdrill",
+          "https://www.facebook.com/paperdrill",
+          "https://www.instagram.com/paperdrill"
+        ],
       },
       {
         "@type": "WebPage",

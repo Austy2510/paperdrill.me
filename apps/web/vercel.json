@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperdrill.me"
+        }
+      ],
+      "destination": "https://www.paperdrill.me/$1",
+      "permanent": true
+    }
+  ]
+}

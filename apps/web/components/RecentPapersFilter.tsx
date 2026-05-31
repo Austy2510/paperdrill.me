@@ -42,28 +42,36 @@ export default function RecentPapersFilter({ boards, papers, children }: RecentP
           </p>
         </div>
 
-        <div className="w-full max-w-4xl relative group mt-4">
+        <form action="/search" method="GET" role="search" className="w-full max-w-4xl relative group mt-4">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 rounded-full blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
           <div className="relative flex items-center bg-card/80 backdrop-blur-xl border border-foreground/10 rounded-full shadow-2xl shadow-primary/5 focus-within:shadow-primary/20 focus-within:border-primary/30 transition-all duration-300 p-2">
             <div className="pl-6 pr-4">
               <Search className="w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
             </div>
             <input 
-              type="text" 
+              type="search" 
+              name="q"
+              id="hero-search"
+              aria-label="Search past paper questions"
               placeholder="Search concepts (e.g. 'enthalpy', 'reflux', 'Newton's Laws')..." 
               className="flex-1 bg-transparent border-none py-4 text-xl font-medium outline-none placeholder:text-muted-foreground/50"
             />
-            <button className="bg-primary text-primary-foreground px-10 py-4 rounded-full font-black text-sm shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest ml-2">
+            <button 
+              type="submit"
+              aria-label="Submit search"
+              className="bg-primary text-primary-foreground px-10 py-4 rounded-full font-black text-sm shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest ml-2"
+            >
               Search
             </button>
           </div>
-        </div>
+        </form>
 
         <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest mr-2">Filter by Board:</span>
           {boards.map((board) => (
             <button 
               key={board} 
+              aria-label={`Filter by ${board}`}
               onClick={() => setSelectedBoard(board)}
               className={`px-4 py-2 rounded-full transition-all text-xs font-bold border ${board === selectedBoard ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" : "bg-secondary text-muted-foreground hover:bg-primary/10 hover:text-primary border-transparent hover:border-primary/20"}`}
             >
@@ -75,9 +83,13 @@ export default function RecentPapersFilter({ boards, papers, children }: RecentP
         <div className="flex flex-wrap items-center justify-center gap-3">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest mr-2">Suggestions:</span>
           {["Organic Mechanisms", "Periodic Trends", "Electrolysis", "Kinetics"].map((tag) => (
-            <button key={tag} className="px-4 py-2 rounded-full bg-secondary hover:bg-primary/10 hover:text-primary transition-all text-xs font-bold border border-transparent hover:border-primary/20">
+            <a 
+              key={tag} 
+              href={`/search?q=${encodeURIComponent(tag)}`}
+              className="px-4 py-2 rounded-full bg-secondary hover:bg-primary/10 hover:text-primary transition-all text-xs font-bold border border-transparent hover:border-primary/20 inline-block"
+            >
               {tag}
-            </button>
+            </a>
           ))}
         </div>
       </motion.section>
@@ -95,28 +107,29 @@ export default function RecentPapersFilter({ boards, papers, children }: RecentP
           </div>
           <div className="flex flex-col gap-4">
             {filteredPapers.map((p, i) => (
-              <motion.div 
-                key={i} 
-                whileHover={{ scale: 1.02, y: -4 }}
-                className="flex items-center gap-4 p-5 rounded-2xl glass border shadow-sm hover:shadow-premium hover:border-primary/40 transition-all duration-300 cursor-pointer group relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-                <div className="w-14 h-14 rounded-2xl bg-secondary flex flex-col items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-inner border border-foreground/5">
-                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Yr</span>
-                  <span className="font-black text-lg leading-none">{p.year % 100}</span>
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold text-lg text-foreground/90 group-hover:text-primary transition-colors">{p.subject} - {p.paper}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{p.board}</span>
-                    <span className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{p.level}</span>
-                    {p.session && <span className="px-2 py-0.5 rounded-md bg-primary/10 text-[10px] font-bold text-primary uppercase tracking-wider">{p.session}</span>}
+              <a href={`/search?board=${encodeURIComponent(p.board)}&subject=${encodeURIComponent(p.subject)}&year=${p.year}`} key={i} className="block">
+                <motion.div 
+                  whileHover={{ scale: 1.02, y: -4 }}
+                  className="flex items-center gap-4 p-5 rounded-2xl glass border shadow-sm hover:shadow-premium hover:border-primary/40 transition-all duration-300 cursor-pointer group relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                  <div className="w-14 h-14 rounded-2xl bg-secondary flex flex-col items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-inner border border-foreground/5">
+                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Yr</span>
+                    <span className="font-black text-lg leading-none">{p.year % 100}</span>
                   </div>
-                </div>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary group-hover:bg-primary/20 transition-colors">
-                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                </div>
-              </motion.div>
+                  <div className="flex-1">
+                    <p className="font-bold text-lg text-foreground/90 group-hover:text-primary transition-colors">{p.subject} - {p.paper}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{p.board}</span>
+                      <span className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{p.level}</span>
+                      {p.session && <span className="px-2 py-0.5 rounded-md bg-primary/10 text-[10px] font-bold text-primary uppercase tracking-wider">{p.session}</span>}
+                    </div>
+                  </div>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary group-hover:bg-primary/20 transition-colors">
+                    <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                </motion.div>
+              </a>
             ))}
           </div>
         </section>

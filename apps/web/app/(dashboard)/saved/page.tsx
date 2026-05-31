@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { getUserId } from "@/app/actions";
 import SavedQuestionsList from "@/components/SavedQuestionsList";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function SavedQuestionsPage() {
   const userId = await getUserId();
